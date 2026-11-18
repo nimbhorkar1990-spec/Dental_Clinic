@@ -1,0 +1,136 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Website Testing & Quality Audit | Dental Clinic Website Builder{% endblock %}
+{% block page_title %}Website Testing & Quality Checking: {{ clinic.name }}{% endblock %}
+{% block page_subtitle %}Pre-launch quality assurance testing suite covering responsiveness, booking forms, WhatsApp, and SEO{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <!-- Action & Score Header -->
+  <div class="row g-4 mb-4">
+    <!-- Left: Score Card -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm rounded-3 h-100 overflow-hidden text-center p-4">
+        <h6 class="text-uppercase small fw-bold text-muted mb-2">Overall Quality Score</h6>
+        
+        <div class="my-3">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle border border-4 {% if clinic.last_test_score >= 90 %}border-success text-success{% else %}border-warning text-warning{% endif %} shadow-sm" style="width: 130px; height: 130px;">
+            <span class="display-5 fw-bold">{{ clinic.last_test_score|default:95 }}%</span>
+          </div>
+        </div>
+
+        <div>
+          <span class="badge {% if clinic.last_test_score >= 90 %}bg-success{% else %}bg-warning text-dark{% endif %} px-3 py-1 rounded-pill fw-semibold">
+            {% if clinic.last_test_score >= 90 %}Passed Quality Standards{% else %}Review Warnings{% endif %}
+          </span>
+        </div>
+
+        <p class="small text-muted mt-3 mb-0">
+          Last tested: <strong>{{ clinic.last_tested_at|date:"M d, Y H:i"|default:"Just now" }}</strong>
+        </p>
+      </div>
+    </div>
+
+    <!-- Right: Test Execution Panel -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm rounded-3 h-100 p-4 d-flex flex-column justify-content-between">
+        <div>
+          <h5 class="fw-bold mb-2">Pre-Publishing Automated Quality Engine</h5>
+          <p class="text-muted small mb-3">
+            Our automated test suite scans all 7 dental clinic pages, validates appointment forms, verifies WhatsApp API numbers, checks mobile viewport metadata, verifies broken links, and audits SEO tags.
+          </p>
+
+          <div class="row g-2 mb-3">
+            <div class="col-4">
+              <div class="p-2 bg-success-subtle border border-success-subtle rounded text-center">
+                <span class="small d-block text-success fw-semibold">Passed Checks</span>
+                <span class="h5 fw-bold text-success mb-0">{{ last_report.passed_checks|default:15 }}</span>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-2 bg-warning-subtle border border-warning-subtle rounded text-center">
+                <span class="small d-block text-warning-emphasis fw-semibold">Warnings</span>
+                <span class="h5 fw-bold text-warning-emphasis mb-0">{{ last_report.warning_checks|default:0 }}</span>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-2 bg-danger-subtle border border-danger-subtle rounded text-center">
+                <span class="small d-block text-danger fw-semibold">Failed</span>
+                <span class="h5 fw-bold text-danger mb-0">{{ last_report.failed_checks|default:0 }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form method="POST" action="{% url 'run_website_test_by_id' clinic.id %}">
+          {% csrf_token %}
+          <div class="d-flex align-items-center gap-2">
+            <button type="submit" class="btn btn-primary fw-bold px-4 py-2 shadow-sm">
+              <i class="fa-solid fa-play me-2"></i> Run Comprehensive Quality Audit
+            </button>
+            <a href="{% url 'website_publish_view' %}" class="btn btn-outline-success fw-semibold py-2">
+              <i class="fa-solid fa-cloud-arrow-up me-1"></i> Proceed to Publish
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quality Checks Detailed Table -->
+  <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4">
+    <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center justify-content-between">
+      <h6 class="mb-0 fw-bold"><i class="fa-solid fa-list-check text-primary me-2"></i>Detailed Quality Verification Report</h6>
+      <span class="small text-muted">{{ last_report.run_date|date:"F d, Y H:i" }}</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="builder-table">
+        <thead>
+          <tr>
+            <th style="width: 180px;">Category</th>
+            <th>Verification Item</th>
+            <th>Status Indicator</th>
+            <th>Diagnostic Findings & Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for check in last_report.results_json %}
+          <tr>
+            <td class="fw-semibold text-secondary">{{ check.category }}</td>
+            <td class="fw-bold text-dark">{{ check.name }}</td>
+            <td>
+              {% if check.status == 'PASS' %}
+              <span class="badge bg-success-subtle text-success border border-success-subtle fw-bold px-2 py-1">
+                <i class="fa-solid fa-circle-check me-1"></i> PASS
+              </span>
+              {% elif check.status == 'WARNING' %}
+              <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-bold px-2 py-1">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i> WARNING
+              </span>
+              {% else %}
+              <span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-bold px-2 py-1">
+                <i class="fa-solid fa-circle-xmark me-1"></i> FAIL
+              </span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="small text-muted">{{ check.detail }}</span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center py-4 text-muted">
+              Click "Run Comprehensive Quality Audit" above to generate a complete verification report.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+

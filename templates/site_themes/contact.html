@@ -1,0 +1,149 @@
+{% extends 'site_themes/base.html' %}
+
+{% block content %}
+<!-- Page Hero Banner -->
+<section class="py-5 text-white position-relative" style="background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));">
+  <div class="container py-4 text-center">
+    <span class="badge bg-white text-primary px-3 py-1 rounded-pill small fw-bold mb-2">Connect With Us</span>
+    <h1 class="display-5 fw-bold text-white mb-2">{{ current_page.hero_title|default:"Contact Our Clinic" }}</h1>
+    <p class="lead text-white-50 mx-auto mb-0" style="max-width: 650px;">
+      {{ current_page.hero_subtitle|default:"We are conveniently located with valet parking and extended evening appointment hours." }}
+    </p>
+  </div>
+</section>
+
+<!-- Contact Info & Working Enquiry Form -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="row g-5">
+      
+      <!-- Left Column: Contact Cards & Operating Hours -->
+      <div class="col-lg-5">
+        <h3 class="fw-bold mb-4 text-dark">Get In Touch</h3>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-3 bg-light">
+          <div class="d-flex align-items-start gap-3">
+            <span class="p-3 bg-primary text-white rounded-circle shadow-sm"><i class="fa-solid fa-location-dot"></i></span>
+            <div>
+              <h6 class="fw-bold text-dark mb-1">Clinic Address</h6>
+              <span class="small text-muted">{{ clinic.address }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-3 bg-light">
+          <div class="d-flex align-items-start gap-3">
+            <span class="p-3 bg-success text-white rounded-circle shadow-sm"><i class="fa-solid fa-phone"></i></span>
+            <div>
+              <h6 class="fw-bold text-dark mb-1">Direct Phone & WhatsApp</h6>
+              <div class="mb-1">
+                <a href="tel:{{ clean_phone }}" class="fw-bold text-dark text-decoration-none">{{ clinic.phone }}</a>
+              </div>
+              <div>
+                <a href="{{ wa_url }}" target="_blank" class="fw-bold text-success text-decoration-none">
+                  <i class="fa-brands fa-whatsapp me-1"></i> +{{ clinic.whatsapp_number }} (Chat Online)
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-3 bg-light">
+          <div class="d-flex align-items-start gap-3">
+            <span class="p-3 bg-info text-white rounded-circle shadow-sm"><i class="fa-solid fa-envelope"></i></span>
+            <div>
+              <h6 class="fw-bold text-dark mb-1">Email Correspondence</h6>
+              <a href="mailto:{{ clinic.email }}" class="small text-primary text-decoration-none fw-semibold">{{ clinic.email }}</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-light">
+          <div class="d-flex align-items-start gap-3">
+            <span class="p-3 bg-warning text-dark rounded-circle shadow-sm"><i class="fa-solid fa-clock"></i></span>
+            <div>
+              <h6 class="fw-bold text-dark mb-1">Working Schedule</h6>
+              <span class="small text-muted" style="white-space: pre-line;">{{ clinic.working_hours }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Enquiry Form -->
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white border">
+          <h4 class="fw-bold mb-2 text-dark"><i class="fa-solid fa-paper-plane text-primary me-2"></i>Send An Enquiry</h4>
+          <p class="text-muted small mb-4">Have questions regarding a treatment, insurance, or appointment? Send us a message and our patient care team will respond promptly.</p>
+
+          <form method="POST" action="{% url 'site_submit_appointment' clinic.slug %}">
+            {% csrf_token %}
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Your Name <span class="text-danger">*</span></label>
+                <input type="text" name="patient_name" class="form-control" placeholder="John Doe" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Mobile Phone <span class="text-danger">*</span></label>
+                <input type="tel" name="mobile_number" class="form-control" placeholder="+1 (555) 000-0000" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Email Address</label>
+                <input type="email" name="email" class="form-control" placeholder="john@example.com">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Treatment of Interest</label>
+                <select name="treatment" class="form-select">
+                  <option value="General Consultation">General Checkup & Consultation</option>
+                  {% for t in treatments %}
+                  <option value="{{ t.name }}">{{ t.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold">Preferred Date</label>
+                <input type="date" name="appointment_date" class="form-control" required>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold">Your Message / Specific Question</label>
+                <textarea name="message" class="form-control" rows="4" placeholder="How can our dental specialists assist you today?"></textarea>
+              </div>
+
+              <div class="col-12">
+                <button type="submit" class="btn btn-clinic-primary fw-bold py-2 px-4 w-100 shadow-sm">
+                  <i class="fa-solid fa-paper-plane me-1"></i> Submit Message & Inquire
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Google Maps Embed Section -->
+    <div class="mt-5">
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center justify-content-between">
+          <h6 class="mb-0 fw-bold"><i class="fa-solid fa-map-location-dot text-danger me-2"></i>Interactive Location Map</h6>
+          <span class="small text-muted">{{ clinic.address }}</span>
+        </div>
+        <div style="height: 400px; width: 100%;">
+          {% if clinic.google_maps_embed %}
+          <iframe src="{{ clinic.google_maps_embed }}" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+          {% else %}
+          <div class="d-flex align-items-center justify-content-center h-100 bg-light text-muted">
+            <i class="fa-solid fa-map-pin fa-2x me-2 text-danger"></i> {{ clinic.address }}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

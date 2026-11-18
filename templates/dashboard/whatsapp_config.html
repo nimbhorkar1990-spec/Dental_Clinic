@@ -1,0 +1,140 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}WhatsApp Integration & CTAs | Dental Clinic Website Builder{% endblock %}
+{% block page_title %}WhatsApp & Instant Call Integration: {{ clinic.name }}{% endblock %}
+{% block page_subtitle %}Configure floating WhatsApp click-to-chat widgets, emergency Call Now hotlines, and sticky mobile conversion bars{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        
+        <!-- WhatsApp Settings -->
+        <div class="form-card mb-4">
+          <div class="form-card-header">
+            <h6 class="mb-0 fw-bold"><i class="fa-brands fa-whatsapp text-success me-2"></i>Floating WhatsApp Click-to-Chat</h6>
+          </div>
+          <div class="form-card-body">
+            <div class="form-check form-switch mb-4">
+              <input class="form-check-input" type="checkbox" name="enable_whatsapp_float" id="enableWa" {% if clinic.enable_whatsapp_float %}checked{% endif %}>
+              <label class="form-check-label fw-bold" for="enableWa">Enable Floating WhatsApp Widget on All Website Pages</label>
+              <small class="text-muted d-block" style="font-size: 0.78rem;">Renders a high-conversion floating WhatsApp icon with tooltip animation</small>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">WhatsApp Contact Number <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fa-brands fa-whatsapp text-success"></i> +</span>
+                  <input type="text" name="whatsapp_number" class="form-control" value="{{ clinic.whatsapp_number }}" placeholder="e.g. 917499077170" required>
+                </div>
+                <small class="text-muted" style="font-size: 0.75rem;">Enter country code and digits without spaces or dashes</small>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Screen Position</label>
+                <select name="whatsapp_float_position" class="form-select">
+                  <option value="bottom-right" {% if clinic.whatsapp_float_position == 'bottom-right' %}selected{% endif %}>Bottom Right (Recommended)</option>
+                  <option value="bottom-left" {% if clinic.whatsapp_float_position == 'bottom-left' %}selected{% endif %}>Bottom Left</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Pre-filled Patient WhatsApp Message</label>
+                <textarea name="whatsapp_prefilled_message" class="form-control" rows="3">{{ clinic.whatsapp_prefilled_message }}</textarea>
+                <small class="text-muted" style="font-size: 0.75rem;">This message automatically populates the patient's chat window when they click the WhatsApp button</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Call Now & Mobile Sticky Bar -->
+        <div class="form-card mb-4">
+          <div class="form-card-header">
+            <h6 class="mb-0 fw-bold"><i class="fa-solid fa-phone text-primary me-2"></i>Call Now Buttons & Mobile Sticky CTA</h6>
+          </div>
+          <div class="form-card-body">
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" name="enable_call_now_button" id="enableCall" {% if clinic.enable_call_now_button %}checked{% endif %}>
+              <label class="form-check-label fw-bold" for="enableCall">Enable Direct 'Call Now' Telephony Buttons</label>
+              <small class="text-muted d-block" style="font-size: 0.78rem;">Uses tel: protocol to trigger instantaneous one-touch mobile phone dialing</small>
+            </div>
+
+            <div class="form-check form-switch mb-4">
+              <input class="form-check-input" type="checkbox" name="enable_sticky_appointment_bar" id="enableBar" {% if clinic.enable_sticky_appointment_bar %}checked{% endif %}>
+              <label class="form-check-label fw-bold" for="enableBar">Enable Mobile Sticky Bottom Conversion Bar</label>
+              <small class="text-muted d-block" style="font-size: 0.78rem;">Locks an accessible Call and Book Appointment bar on mobile screens</small>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Primary Telephone Number</label>
+                <input type="text" name="phone" class="form-control" value="{{ clinic.phone }}" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Emergency Dental Hotline</label>
+                <input type="text" name="emergency_contact" class="form-control" value="{{ clinic.emergency_contact }}">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-grid mb-4">
+          <button type="submit" class="btn btn-primary fw-bold py-2 shadow-sm">
+            <i class="fa-solid fa-floppy-disk me-1"></i> Save WhatsApp & Calling Settings
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Interactive Test & Link Simulator -->
+      <div class="col-lg-5">
+        
+        <div class="form-card mb-4 sticky-top" style="top: 85px;">
+          <div class="form-card-header">
+            <h6 class="mb-0 fw-bold"><i class="fa-solid fa-vial text-info me-2"></i>Live WhatsApp Link Test</h6>
+          </div>
+          <div class="form-card-body">
+            <p class="small text-muted mb-3">
+              Test your generated click-to-chat WhatsApp link before sharing it with patients:
+            </p>
+
+            <div class="p-3 bg-light rounded border mb-3">
+              <span class="small fw-semibold text-muted d-block mb-1">Generated API Link:</span>
+              <a href="{{ sample_url }}" target="_blank" class="small text-break text-primary fw-semibold" id="waLinkPreview">
+                {{ sample_url }}
+              </a>
+            </div>
+
+            <!-- Interactive Test Button -->
+            <div class="text-center py-3">
+              <a href="{{ sample_url }}" target="_blank" class="btn btn-success fw-bold px-4 py-2 shadow-sm rounded-pill">
+                <i class="fa-brands fa-whatsapp fa-lg me-2"></i> Test WhatsApp Chat Now
+              </a>
+            </div>
+
+            <hr>
+
+            <div class="small text-muted">
+              <h6 class="fw-bold text-dark small mb-2"><i class="fa-solid fa-lightbulb text-warning me-1"></i> Best Practices for Dental Conversion:</h6>
+              <ul class="ps-3 mb-0">
+                <li class="mb-1">Include clinic name and clear intent in the prefilled greeting.</li>
+                <li class="mb-1">Keep numbers in full international format without leading zeroes.</li>
+                <li>Ensure mobile response team is active during working hours.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </form>
+
+</div>
+{% endblock %}
+

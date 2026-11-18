@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {% for page in pages %}
+  <url>
+    <loc>https://{{ clinic.domain_name|default:"www.yourclinic.com" }}/site/{{ clinic.slug }}/{{ page.slug }}</loc>
+    <lastmod>{{ page.updated_at|date:"Y-m-d" }}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>{% if page.page_type == 'home' %}1.0{% elif page.page_type == 'appointment' %}0.9{% else %}0.8{% endif %}</priority>
+  </url>
+  {% endfor %}
+</urlset>
+

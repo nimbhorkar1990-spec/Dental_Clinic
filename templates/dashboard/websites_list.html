@@ -1,0 +1,159 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Manage Dental Clinic Websites | Dental Clinic Website Builder{% endblock %}
+{% block page_title %}Manage Websites{% endblock %}
+{% block page_subtitle %}Comprehensive management of all multi-tenant dental clinic websites and clinical configurations{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+      <h6 class="fw-bold mb-0 text-dark">Dental Clinic Websites ({{ clinics.count }})</h6>
+      <span class="text-muted small">Each clinic runs independently with its own themes, doctors, treatments, and appointments</span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <a href="{% url 'website_create' %}" class="btn btn-primary fw-semibold btn-sm shadow-sm">
+        <i class="fa-solid fa-plus me-1"></i> Create New Dental Website
+      </a>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+    <div class="table-responsive">
+      <table class="builder-table">
+        <thead>
+          <tr>
+            <th>Clinic & Domain</th>
+            <th>Theme Applied</th>
+            <th>Doctors / Treatments</th>
+            <th>Enquiries</th>
+            <th>Status</th>
+            <th>Quality Score</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in clinics %}
+          <tr {% if active_clinic and c.id == active_clinic.id %}style="background-color: #f0f9ff;"{% endif %}>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="p-2 bg-light rounded border text-primary">
+                  <i class="fa-solid fa-tooth fa-lg"></i>
+                </div>
+                <div>
+                  <div class="fw-bold text-dark">
+                    {{ c.name }}
+                    {% if active_clinic and c.id == active_clinic.id %}
+                    <span class="badge bg-primary-subtle text-primary border ms-1 small">Current</span>
+                    {% endif %}
+                  </div>
+                  <div class="small text-muted">
+                    <span class="me-2"><i class="fa-solid fa-globe me-1"></i> {{ c.domain_name|default:c.slug }}</span>
+                    <span><i class="fa-solid fa-phone me-1"></i> {{ c.phone }}</span>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge bg-light text-dark border fw-medium px-2 py-1">
+                <i class="fa-solid fa-palette text-info me-1"></i> {{ c.theme.name|default:"Aura Dental" }}
+              </span>
+            </td>
+            <td>
+              <div class="small fw-semibold">
+                <span>{{ c.doctors_count }} Doctors</span> · <span>{{ c.treatments_count }} Treatments</span>
+              </div>
+              <span class="small text-muted">7 Standard Pages Active</span>
+            </td>
+            <td>
+              <span class="badge bg-primary-subtle text-primary border fw-semibold px-2 py-1">
+                {{ c.enquiries_count }} Enquiries
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-status badge-{{ c.status }}">{{ c.get_status_display }}</span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="progress flex-fill" style="width: 60px; height: 8px;">
+                  <div class="progress-bar {% if c.last_test_score >= 90 %}bg-success{% else %}bg-warning{% endif %}" style="width: {{ c.last_test_score }}%;"></div>
+                </div>
+                <span class="small fw-bold">{{ c.last_test_score }}%</span>
+              </div>
+            </td>
+            <td>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  Manage
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'site_home' c.slug %}" target="_blank">
+                      <i class="fa-solid fa-arrow-up-right-from-square text-primary me-2"></i> Open Live Site
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'website_preview_by_id' c.id %}">
+                      <i class="fa-solid fa-laptop-mobile text-info me-2"></i> Responsive Preview
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'website_switch' c.id %}?next={% url 'customization_view' %}">
+                      <i class="fa-solid fa-sliders text-secondary me-2"></i> Customize Theme & Colors
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'website_switch' c.id %}?next={% url 'pages_list' %}">
+                      <i class="fa-solid fa-file-lines text-warning me-2"></i> Manage 7 Pages
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'website_testing_by_id' c.id %}">
+                      <i class="fa-solid fa-clipboard-check text-success me-2"></i> Quality Audit & Testing
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'website_publish_by_id' c.id %}">
+                      <i class="fa-solid fa-cloud-arrow-up text-primary me-2"></i> Publish / Deploy
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'export_website_zip_by_id' c.id %}">
+                      <i class="fa-solid fa-file-zipper text-secondary me-2"></i> Export Static ZIP
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item text-secondary" href="{% url 'website_duplicate' c.id %}">
+                      <i class="fa-solid fa-copy me-2"></i> Duplicate Design
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item text-danger" href="{% url 'website_delete' c.id %}">
+                      <i class="fa-solid fa-trash me-2"></i> Delete Website
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="fa-solid fa-hospital fa-3x mb-3 text-secondary opacity-50"></i>
+              <p class="mb-3">No dental clinic websites found.</p>
+              <a href="{% url 'website_create' %}" class="btn btn-primary btn-sm fw-semibold">
+                <i class="fa-solid fa-plus me-1"></i> Create Your First Clinic Website
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+

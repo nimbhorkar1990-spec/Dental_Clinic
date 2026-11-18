@@ -1,0 +1,171 @@
+{% extends 'site_themes/base.html' %}
+
+{% block content %}
+<!-- Page Hero Banner -->
+<section class="py-5 text-white position-relative" style="background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));">
+  <div class="container py-4">
+    <div class="d-flex align-items-center gap-3">
+      <span class="p-3 bg-white text-primary rounded-circle shadow">
+        <i class="{{ treatment.icon_class }} fa-2x"></i>
+      </span>
+      <div>
+        <span class="badge bg-white text-primary px-3 py-1 rounded-pill small fw-bold mb-1">Clinical Treatment Procedure</span>
+        <h1 class="display-5 fw-bold text-white mb-1">{{ treatment.name }}</h1>
+        <div class="d-flex align-items-center gap-3 text-white-50 small">
+          <span><i class="fa-solid fa-clock me-1 text-warning"></i> Duration: {{ treatment.duration }}</span>
+          <span>|</span>
+          <span><i class="fa-solid fa-tag me-1 text-success"></i> Starting: <strong>{{ treatment.price_starting_at }}</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Treatment Content & Booking Layout -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="row g-5">
+      
+      <!-- Left Column: Clinical Details -->
+      <div class="col-lg-8">
+        
+        <!-- Clinical Overview -->
+        <div class="mb-5">
+          <h3 class="fw-bold mb-3 text-dark">Procedure Overview</h3>
+          <p class="lead text-muted mb-4">{{ treatment.short_description }}</p>
+          <div class="text-muted" style="line-height: 1.8;">
+            <p>{{ treatment.full_description }}</p>
+          </div>
+        </div>
+
+        <!-- Step-by-Step Procedure Steps -->
+        <div class="mb-5">
+          <h4 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-list-ol text-primary me-2"></i>How the Treatment is Performed</h4>
+          
+          <div class="p-4 bg-light rounded-4 border">
+            {% for step in treatment.get_steps_list %}
+            <div class="d-flex align-items-start gap-3 mb-3 {% if not forloop.last %}pb-3 border-bottom{% endif %}">
+              <span class="badge bg-primary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                {{ forloop.counter }}
+              </span>
+              <div>
+                <span class="fw-semibold text-dark">{{ step }}</span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Key Patient Benefits -->
+        <div class="mb-5">
+          <h4 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-circle-check text-success me-2"></i>Key Clinical Benefits</h4>
+          
+          <div class="row g-3">
+            {% for b in treatment.get_benefits_list %}
+            <div class="col-md-6">
+              <div class="p-3 bg-white border rounded-3 shadow-sm d-flex align-items-start gap-2 h-100">
+                <i class="fa-solid fa-check text-success mt-1"></i>
+                <span class="small fw-semibold text-dark">{{ b }}</span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- FAQs Section with Interactive Collapsible Accordion -->
+        <div class="mb-4">
+          <h4 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-circle-question text-info me-2"></i>Frequently Asked Questions</h4>
+          
+          {% if treatment.get_faqs_list %}
+          <div class="accordion shadow-sm rounded-4 overflow-hidden border" id="treatmentFaqAccordion">
+            {% for item in treatment.get_faqs_list %}
+            <div class="accordion-item border-0 border-bottom">
+              <h2 class="accordion-header" id="faqHead_{{ forloop.counter }}">
+                <button class="accordion-button fw-bold py-3 {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#faqCol_{{ forloop.counter }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}">
+                  <i class="fa-solid fa-circle-question text-primary me-2"></i> {{ item.q }}
+                </button>
+              </h2>
+              <div id="faqCol_{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#treatmentFaqAccordion">
+                <div class="accordion-body bg-light text-muted small" style="line-height: 1.8;">
+                  {{ item.a }}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="p-4 bg-light rounded-4 border">
+            <div class="small text-muted" style="white-space: pre-line; line-height: 1.8;">
+              {{ treatment.faqs }}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+      </div>
+
+      <!-- Right Column: Instant Booking Card -->
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden sticky-top" style="top: 85px;">
+          <div class="p-4 text-white" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+            <h5 class="fw-bold mb-1 text-white">Book {{ treatment.name }}</h5>
+            <span class="small text-white-50">Zero-wait appointment confirmation</span>
+          </div>
+
+          <div class="p-4 bg-white">
+            <form method="POST" action="{% url 'site_submit_appointment' clinic.slug %}">
+              {% csrf_token %}
+              <input type="hidden" name="treatment" value="{{ treatment.name }}">
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Full Name <span class="text-danger">*</span></label>
+                <input type="text" name="patient_name" class="form-control form-control-sm" placeholder="Your Name" required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Mobile Phone / WhatsApp <span class="text-danger">*</span></label>
+                <input type="tel" name="mobile_number" class="form-control form-control-sm" placeholder="+1 (555) 000-0000" required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Preferred Date</label>
+                <input type="date" name="appointment_date" class="form-control form-control-sm" required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Preferred Time Slot</label>
+                <select name="preferred_time" class="form-select form-select-sm">
+                  <option value="morning">Morning (9am - 12pm)</option>
+                  <option value="afternoon">Afternoon (12pm - 4pm)</option>
+                  <option value="evening">Evening (4pm - 7:30pm)</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Doctor Preference</label>
+                <select name="doctor" class="form-select form-select-sm">
+                  <option value="Any Specialist">Any Available Specialist</option>
+                  {% for doc in doctors %}
+                  <option value="{{ doc.name }}">{{ doc.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-clinic-primary fw-bold">
+                  <i class="fa-solid fa-calendar-check me-1"></i> Request Consultation
+                </button>
+                <a href="{{ wa_url }}" target="_blank" class="btn btn-outline-success fw-bold btn-sm">
+                  <i class="fa-brands fa-whatsapp me-1"></i> Inquire on WhatsApp
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}
+

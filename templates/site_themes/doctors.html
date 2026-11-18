@@ -1,0 +1,83 @@
+{% extends 'site_themes/base.html' %}
+
+{% block content %}
+<!-- Page Hero Banner -->
+<section class="py-5 text-white position-relative" style="background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));">
+  <div class="container py-4 text-center">
+    <span class="badge bg-white text-primary px-3 py-1 rounded-pill small fw-bold mb-2">Our Clinical Team</span>
+    <h1 class="display-5 fw-bold text-white mb-2">{{ current_page.hero_title|default:"Meet Our Dental Specialists" }}</h1>
+    <p class="lead text-white-50 mx-auto mb-0" style="max-width: 650px;">
+      {{ current_page.hero_subtitle|default:"A dedicated multidisciplinary team of board-certified dental surgeons, prosthodontists, and orthodontists." }}
+    </p>
+  </div>
+</section>
+
+<!-- Doctors Grid Section -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="row g-4">
+      {% for doc in doctors %}
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 p-3 bg-light">
+          <div class="row g-4 align-items-center">
+            
+            <!-- Doctor Photo -->
+            <div class="col-md-5">
+              <div class="rounded-4 overflow-hidden position-relative bg-white shadow-sm" style="height: 280px; display: flex; align-items: center; justify-content: center;">
+                {% if doc.photo %}
+                <img src="{{ doc.photo.url }}" alt="{{ doc.name }}" class="w-100 h-100" style="object-fit: cover;">
+                {% else %}
+                <i class="fa-solid fa-user-doctor fa-5x text-primary opacity-50"></i>
+                {% endif %}
+                <span class="position-absolute bottom-0 start-0 m-2 badge bg-dark bg-opacity-75">
+                  {{ doc.experience_years }}+ Yrs Experience
+                </span>
+              </div>
+            </div>
+
+            <!-- Doctor Bio Info -->
+            <div class="col-md-7">
+              <h4 class="fw-bold text-dark mb-1">{{ doc.name }}</h4>
+              <span class="text-primary fw-semibold d-block mb-1">{{ doc.specialization }}</span>
+              <span class="text-muted small d-block mb-3">{{ doc.qualification }}</span>
+
+              <p class="small text-muted mb-3" style="line-height: 1.6;">
+                {{ doc.bio }}
+              </p>
+
+              <div class="p-2 bg-white rounded-3 small mb-3 border">
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="text-muted">Available Days:</span>
+                  <span class="fw-bold text-dark">{{ doc.available_days }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">Consultation Fee:</span>
+                  <span class="fw-bold text-success">{{ doc.consultation_fee }}</span>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center gap-2">
+                {% if doc.appointment_enabled %}
+                <a href="{% url 'site_appointment' clinic.slug %}?doctor={{ doc.name }}" class="btn btn-clinic-primary btn-sm flex-fill">
+                  <i class="fa-solid fa-calendar-check me-1"></i> Book Appointment
+                </a>
+                {% endif %}
+                <a href="{{ wa_url }}" target="_blank" class="btn btn-sm btn-outline-success">
+                  <i class="fa-brands fa-whatsapp"></i> Chat
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5">
+        <p class="text-muted">No doctor profiles found.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+

@@ -1,0 +1,160 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Responsive Website Preview | Dental Clinic Website Builder{% endblock %}
+{% block page_title %}Website Preview: {{ clinic.name }}{% endblock %}
+{% block page_subtitle %}Live interactive multi-device viewport testing for desktop, laptop, tablet, and mobile displays{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <!-- Device Switcher Bar -->
+  <div class="card border-0 shadow-sm rounded-3 p-3 bg-white mb-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      
+      <!-- Device Viewport Selection -->
+      <div class="d-flex align-items-center gap-2">
+        <span class="small fw-bold text-muted text-uppercase me-2">Viewport:</span>
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-sm btn-outline-primary active" id="viewDesktop" onclick="setDevice('desktop')">
+            <i class="fa-solid fa-desktop me-1"></i> Desktop (1200px)
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-primary" id="viewLaptop" onclick="setDevice('laptop')">
+            <i class="fa-solid fa-laptop me-1"></i> Laptop (1024px)
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-primary" id="viewTablet" onclick="setDevice('tablet')">
+            <i class="fa-solid fa-tablet-screen-button me-1"></i> Tablet (768px)
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-primary" id="viewMobile" onclick="setDevice('mobile')">
+            <i class="fa-solid fa-mobile-screen me-1"></i> Mobile (375px)
+          </button>
+        </div>
+
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="rotateMobile()" id="rotateBtn" title="Rotate Device Orientation" style="display: none;">
+          <i class="fa-solid fa-arrows-rotate"></i>
+        </button>
+      </div>
+
+      <!-- Page Switcher -->
+      <div class="d-flex align-items-center gap-2">
+        <span class="small fw-bold text-muted text-uppercase">Page:</span>
+        <select class="form-select form-select-sm" id="pageSelector" onchange="navigateToPage(this.value)" style="width: 200px;">
+          <option value="{% url 'site_home' clinic.slug %}">Page 1: Home</option>
+          <option value="{% url 'site_about' clinic.slug %}">Page 2: About Us</option>
+          <option value="{% url 'site_treatments' clinic.slug %}">Page 3: Treatments</option>
+          <option value="{% url 'site_doctors' clinic.slug %}">Page 4: Our Doctors</option>
+          <option value="{% url 'site_gallery' clinic.slug %}">Page 5: Gallery</option>
+          <option value="{% url 'site_contact' clinic.slug %}">Page 6: Contact Us</option>
+          <option value="{% url 'site_appointment' clinic.slug %}">Page 7: Appointment Booking</option>
+        </select>
+
+        <button class="btn btn-sm btn-outline-secondary" onclick="reloadPreview()" title="Refresh Preview">
+          <i class="fa-solid fa-arrow-rotate-right"></i>
+        </button>
+
+        <a id="openTabBtn" href="{% url 'site_home' clinic.slug %}" target="_blank" class="btn btn-sm btn-outline-primary fw-semibold">
+          <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Open New Tab
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Device Frame Stage -->
+  <div class="device-frame-container" id="stageContainer">
+    <div class="device-frame device-desktop" id="frameWrapper">
+      <!-- Simulated Top Address Bar for Mobile/Tablet -->
+      <div class="bg-dark text-white px-3 py-1 small d-flex align-items-center justify-content-between" style="font-size: 0.72rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <span class="text-truncate" id="simulatedUrl">https://{{ clinic.domain_name|default:clinic.slug }}/</span>
+        <span class="badge bg-success-subtle text-success border border-success-subtle p-1"><i class="fa-solid fa-lock"></i> SSL Secured</span>
+      </div>
+      <iframe id="previewFrame" src="{% url 'site_home' clinic.slug %}" class="w-100 h-100 border-0" style="min-height: 750px;"></iframe>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  let isRotated = false;
+  let currentDevice = 'desktop';
+
+  function setDevice(device) {
+    currentDevice = device;
+    const wrapper = document.getElementById('frameWrapper');
+    const rotateBtn = document.getElementById('rotateBtn');
+    
+    document.querySelectorAll('.btn-group button').forEach(b => b.classList.remove('active'));
+    
+    wrapper.className = 'device-frame';
+    
+    if (device === 'desktop') {
+      wrapper.classList.add('device-desktop');
+      document.getElementById('viewDesktop').classList.add('active');
+      rotateBtn.style.display = 'none';
+      wrapper.style.width = '100%';
+      wrapper.style.maxWidth = '1200px';
+      wrapper.style.height = '800px';
+    } else if (device === 'laptop') {
+      document.getElementById('viewLaptop').classList.add('active');
+      rotateBtn.style.display = 'none';
+      wrapper.style.width = '1024px';
+      wrapper.style.maxWidth = '1024px';
+      wrapper.style.height = '780px';
+    } else if (device === 'tablet') {
+      wrapper.classList.add('device-tablet');
+      document.getElementById('viewTablet').classList.add('active');
+      rotateBtn.style.display = 'inline-block';
+      wrapper.style.width = '768px';
+      wrapper.style.maxWidth = '768px';
+      wrapper.style.height = '850px';
+    } else if (device === 'mobile') {
+      wrapper.classList.add('device-mobile');
+      document.getElementById('viewMobile').classList.add('active');
+      rotateBtn.style.display = 'inline-block';
+      wrapper.style.width = '375px';
+      wrapper.style.maxWidth = '375px';
+      wrapper.style.height = '750px';
+    }
+  }
+
+  function rotateMobile() {
+    const wrapper = document.getElementById('frameWrapper');
+    isRotated = !isRotated;
+    if (currentDevice === 'mobile') {
+      if (isRotated) {
+        wrapper.style.width = '750px';
+        wrapper.style.maxWidth = '750px';
+        wrapper.style.height = '420px';
+      } else {
+        wrapper.style.width = '375px';
+        wrapper.style.maxWidth = '375px';
+        wrapper.style.height = '750px';
+      }
+    } else if (currentDevice === 'tablet') {
+      if (isRotated) {
+        wrapper.style.width = '1024px';
+        wrapper.style.maxWidth = '1024px';
+        wrapper.style.height = '650px';
+      } else {
+        wrapper.style.width = '768px';
+        wrapper.style.maxWidth = '768px';
+        wrapper.style.height = '850px';
+      }
+    }
+  }
+
+  function navigateToPage(url) {
+    const frame = document.getElementById('previewFrame');
+    frame.src = url;
+    document.getElementById('openTabBtn').href = url;
+    document.getElementById('simulatedUrl').innerText = url;
+  }
+
+  function reloadPreview() {
+    const frame = document.getElementById('previewFrame');
+    frame.contentWindow.location.reload();
+  }
+</script>
+{% endblock %}
+

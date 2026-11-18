@@ -1,0 +1,345 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Website Customization | Dental Clinic Website Builder{% endblock %}
+{% block page_title %}Website Customization: {{ clinic.name }}{% endblock %}
+{% block page_subtitle %}Live visual styling, colors, typography, header/footer structure, banners, and layout controls{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <form method="POST" enctype="multipart/form-data" id="customizerForm">
+    {% csrf_token %}
+
+    <div class="row g-4">
+      <!-- Left Column: Customization Controls -->
+      <div class="col-xl-5 col-lg-6">
+        
+        <!-- Accordion Controls -->
+        <div class="accordion shadow-sm rounded-3 overflow-hidden border-0 mb-4" id="customizerAccordion">
+          
+          <!-- 1. Colors & Branding -->
+          <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header" id="headingColors">
+              <button class="accordion-button fw-bold py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseColors" aria-expanded="true">
+                <i class="fa-solid fa-palette text-primary me-2"></i> 1. Color Palette & Aesthetics
+              </button>
+            </h2>
+            <div id="collapseColors" class="accordion-collapse collapse show" data-bs-parent="#customizerAccordion">
+              <div class="accordion-body bg-white p-4">
+                <div class="mb-3">
+                  <label class="form-label d-flex justify-content-between">
+                    <span>Primary Brand Color</span>
+                    <span class="text-muted small" id="primaryVal">{{ clinic.primary_color }}</span>
+                  </label>
+                  <div class="input-group">
+                    <input type="color" name="primary_color" id="primaryColorInput" class="form-control form-control-color" value="{{ clinic.primary_color }}">
+                    <input type="text" class="form-control" value="{{ clinic.primary_color }}" id="primaryColorText">
+                  </div>
+                  <small class="text-muted" style="font-size: 0.75rem;">Buttons, badges, highlights, links, and icon accents</small>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label d-flex justify-content-between">
+                    <span>Secondary Brand Color (Dark)</span>
+                    <span class="text-muted small" id="secondaryVal">{{ clinic.secondary_color }}</span>
+                  </label>
+                  <div class="input-group">
+                    <input type="color" name="secondary_color" id="secondaryColorInput" class="form-control form-control-color" value="{{ clinic.secondary_color }}">
+                    <input type="text" class="form-control" value="{{ clinic.secondary_color }}" id="secondaryColorText">
+                  </div>
+                  <small class="text-muted" style="font-size: 0.75rem;">Top emergency bar, headings, dark backgrounds</small>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label d-flex justify-content-between">
+                    <span>Accent / Success Color</span>
+                    <span class="text-muted small">{{ clinic.accent_color }}</span>
+                  </label>
+                  <div class="input-group">
+                    <input type="color" name="accent_color" class="form-control form-control-color" value="{{ clinic.accent_color }}">
+                    <input type="text" class="form-control" value="{{ clinic.accent_color }}">
+                  </div>
+                </div>
+
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <label class="form-label">Page Background</label>
+                    <input type="color" name="background_color" class="form-control form-control-color w-100" value="{{ clinic.background_color }}">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label">Body Text Color</label>
+                    <input type="color" name="text_color" class="form-control form-control-color w-100" value="{{ clinic.text_color }}">
+                  </div>
+                </div>
+
+                <!-- Preset Dental Palettes Quick Pick -->
+                <div class="mt-3 pt-3 border-top">
+                  <span class="small fw-semibold text-muted d-block mb-2">Quick Dental Color Presets:</span>
+                  <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-1" onclick="applyPreset('#0ea5e9', '#0369a1', '#10b981')">
+                      <span class="rounded-circle d-inline-block me-1" style="width: 10px; height: 10px; background: #0ea5e9;"></span> Cyan & Navy
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-1" onclick="applyPreset('#10b981', '#047857', '#34d399')">
+                      <span class="rounded-circle d-inline-block me-1" style="width: 10px; height: 10px; background: #10b981;"></span> Mint & Soft Green
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary py-1" onclick="applyPreset('#1e3a8a', '#172554', '#f59e0b')">
+                      <span class="rounded-circle d-inline-block me-1" style="width: 10px; height: 10px; background: #1e3a8a;"></span> Royal Blue & Gold
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Typography & Fonts -->
+          <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header" id="headingTypography">
+              <button class="accordion-button collapsed fw-bold py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTypography">
+                <i class="fa-solid fa-font text-info me-2"></i> 2. Font Styles & Sizes
+              </button>
+            </h2>
+            <div id="collapseTypography" class="accordion-collapse collapse" data-bs-parent="#customizerAccordion">
+              <div class="accordion-body bg-white p-4">
+                <div class="mb-3">
+                  <label class="form-label">Font Family</label>
+                  <select name="font_family" class="form-select">
+                    <option value="Poppins, sans-serif" {% if 'Poppins' in clinic.font_family %}selected{% endif %}>Poppins (Modern & Friendly Dental)</option>
+                    <option value="Inter, sans-serif" {% if 'Inter' in clinic.font_family %}selected{% endif %}>Inter (Clean, Minimal & High-Tech)</option>
+                    <option value="Montserrat, sans-serif" {% if 'Montserrat' in clinic.font_family %}selected{% endif %}>Montserrat (Authoritative & Surgical)</option>
+                    <option value="Roboto, sans-serif" {% if 'Roboto' in clinic.font_family %}selected{% endif %}>Roboto (Clinical & Professional)</option>
+                    <option value="Playfair Display, serif" {% if 'Playfair' in clinic.font_family %}selected{% endif %}>Playfair Display (Luxury Cosmetic Smile)</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Base Font Size</label>
+                  <select name="font_size_base" class="form-select">
+                    <option value="15px" {% if clinic.font_size_base == '15px' %}selected{% endif %}>15px (Compact)</option>
+                    <option value="16px" {% if clinic.font_size_base == '16px' %}selected{% endif %}>16px (Standard Optimal)</option>
+                    <option value="17px" {% if clinic.font_size_base == '17px' %}selected{% endif %}>17px (High Legibility)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Header & Footer Layout -->
+          <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header" id="headingHeaderFooter">
+              <button class="accordion-button collapsed fw-bold py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHeaderFooter">
+                <i class="fa-solid fa-table-cells text-warning me-2"></i> 3. Header & Footer Layout
+              </button>
+            </h2>
+            <div id="collapseHeaderFooter" class="accordion-collapse collapse" data-bs-parent="#customizerAccordion">
+              <div class="accordion-body bg-white p-4">
+                <div class="mb-3">
+                  <label class="form-label">Header Navigation Style</label>
+                  <select name="header_style" class="form-select">
+                    <option value="modern" {% if clinic.header_style == 'modern' %}selected{% endif %}>Modern Sticky (Emergency Topbar + Clean Nav + Book Button)</option>
+                    <option value="classic" {% if clinic.header_style == 'classic' %}selected{% endif %}>Classic Medical (Direct Phone & Hours in Header)</option>
+                    <option value="minimal" {% if clinic.header_style == 'minimal' %}selected{% endif %}>Minimalist Floating Nav</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Footer Layout</label>
+                  <select name="footer_style" class="form-select">
+                    <option value="multi-column" {% if clinic.footer_style == 'multi-column' %}selected{% endif %}>Four Column Comprehensive (About, Treatments, Quick Links, Contacts)</option>
+                    <option value="compact" {% if clinic.footer_style == 'compact' %}selected{% endif %}>Compact Clean Footer</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Clinic Logo Upload</label>
+                  <input type="file" name="logo" class="form-control" accept="image/*">
+                  {% if clinic.logo %}
+                  <div class="mt-2 p-2 bg-light rounded text-center">
+                    <img src="{{ clinic.logo.url }}" alt="Logo" style="height: 40px; object-fit: contain;">
+                  </div>
+                  {% endif %}
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label">Favicon Upload (.ico / .png)</label>
+                  <input type="file" name="favicon" class="form-control" accept="image/*">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Hero Banner & Messaging -->
+          <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header" id="headingBanner">
+              <button class="accordion-button collapsed fw-bold py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBanner">
+                <i class="fa-solid fa-bullhorn text-danger me-2"></i> 4. Hero Banner & CTAs
+              </button>
+            </h2>
+            <div id="collapseBanner" class="accordion-collapse collapse" data-bs-parent="#customizerAccordion">
+              <div class="accordion-body bg-white p-4">
+                <div class="mb-3">
+                  <label class="form-label">Banner Headline</label>
+                  <input type="text" name="banner_headline" class="form-control" value="{{ clinic.banner_headline }}">
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Banner Subheadline</label>
+                  <textarea name="banner_subheadline" class="form-control" rows="3">{{ clinic.banner_subheadline }}</textarea>
+                </div>
+
+                <div class="row g-2 mb-3">
+                  <div class="col-6">
+                    <label class="form-label">Primary Button Text</label>
+                    <input type="text" name="banner_cta_text" class="form-control" value="{{ clinic.banner_cta_text }}">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label">Secondary Button Text</label>
+                    <input type="text" name="banner_secondary_cta_text" class="form-control" value="{{ clinic.banner_secondary_cta_text }}">
+                  </div>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label">Banner Background Graphic / Image</label>
+                  <input type="file" name="banner_image" class="form-control" accept="image/*">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Custom CSS Code Editor -->
+          <div class="accordion-item border-0">
+            <h2 class="accordion-header" id="headingCSS">
+              <button class="accordion-button collapsed fw-bold py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCSS">
+                <i class="fa-solid fa-code text-secondary me-2"></i> 5. Custom CSS & Overrides
+              </button>
+            </h2>
+            <div id="collapseCSS" class="accordion-collapse collapse" data-bs-parent="#customizerAccordion">
+              <div class="accordion-body bg-white p-4">
+                <label class="form-label">Additional Custom CSS</label>
+                <textarea name="custom_css" class="form-control font-monospace" rows="6" placeholder="/* Custom CSS overrides */">{{ clinic.custom_css }}</textarea>
+                <small class="text-muted" style="font-size: 0.75rem;">Injected directly into the website head</small>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Sticky Save Button -->
+        <div class="d-grid gap-2 mb-4">
+          <button type="submit" class="btn btn-primary fw-bold py-2 shadow-sm">
+            <i class="fa-solid fa-floppy-disk me-1"></i> Save Customizations
+          </button>
+          <a href="{% url 'site_home' clinic.slug %}" target="_blank" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> View Full Live Website
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Interactive Live Preview Pane -->
+      <div class="col-xl-7 col-lg-6">
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden sticky-top" style="top: 85px;">
+          <div class="card-header bg-white py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-success p-1 rounded-circle" style="width: 8px; height: 8px;"></span>
+              <span class="small fw-bold text-dark">Live Interactive Preview</span>
+            </div>
+            
+            <!-- Device Viewport Buttons -->
+            <div class="btn-group btn-group-sm" role="group">
+              <button type="button" class="btn btn-outline-secondary active" id="btnDesktop" onclick="setPreviewDevice('desktop')">
+                <i class="fa-solid fa-desktop"></i>
+              </button>
+              <button type="button" class="btn btn-outline-secondary" id="btnTablet" onclick="setPreviewDevice('tablet')">
+                <i class="fa-solid fa-tablet-screen-button"></i>
+              </button>
+              <button type="button" class="btn btn-outline-secondary" id="btnMobile" onclick="setPreviewDevice('mobile')">
+                <i class="fa-solid fa-mobile-screen"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-dark p-3 d-flex justify-content-center" style="min-height: 720px; overflow: hidden;">
+            <iframe id="previewIframe" src="{% url 'site_home' clinic.slug %}" class="w-100 bg-white shadow rounded" style="height: 720px; border: none; transition: width 0.3s ease;"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function setPreviewDevice(device) {
+    const iframe = document.getElementById('previewIframe');
+    document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+    
+    if (device === 'desktop') {
+      iframe.style.width = '100%';
+      document.getElementById('btnDesktop').classList.add('active');
+    } else if (device === 'tablet') {
+      iframe.style.width = '768px';
+      document.getElementById('btnTablet').classList.add('active');
+    } else if (device === 'mobile') {
+      iframe.style.width = '375px';
+      document.getElementById('btnMobile').classList.add('active');
+    }
+  }
+
+  function updateIframeCssVar(varName, value) {
+    try {
+      const iframe = document.getElementById('previewIframe');
+      if (iframe && iframe.contentDocument) {
+        iframe.contentDocument.documentElement.style.setProperty(varName, value);
+      }
+    } catch (e) {}
+  }
+
+  function applyPreset(primary, secondary, accent) {
+    document.getElementById('primaryColorInput').value = primary;
+    document.getElementById('primaryColorText').value = primary;
+    document.getElementById('primaryVal').innerText = primary;
+    updateIframeCssVar('--primary-color', primary);
+
+    document.getElementById('secondaryColorInput').value = secondary;
+    document.getElementById('secondaryColorText').value = secondary;
+    document.getElementById('secondaryVal').innerText = secondary;
+    updateIframeCssVar('--secondary-color', secondary);
+
+    updateIframeCssVar('--accent-color', accent);
+  }
+
+  // Live color change sync
+  const pInput = document.getElementById('primaryColorInput');
+  const pText = document.getElementById('primaryColorText');
+  if (pInput && pText) {
+    pInput.addEventListener('input', (e) => {
+      pText.value = e.target.value;
+      document.getElementById('primaryVal').innerText = e.target.value;
+      updateIframeCssVar('--primary-color', e.target.value);
+    });
+    pText.addEventListener('input', (e) => {
+      pInput.value = e.target.value;
+      document.getElementById('primaryVal').innerText = e.target.value;
+      updateIframeCssVar('--primary-color', e.target.value);
+    });
+  }
+
+  const sInput = document.getElementById('secondaryColorInput');
+  const sText = document.getElementById('secondaryColorText');
+  if (sInput && sText) {
+    sInput.addEventListener('input', (e) => {
+      sText.value = e.target.value;
+      document.getElementById('secondaryVal').innerText = e.target.value;
+      updateIframeCssVar('--secondary-color', e.target.value);
+    });
+    sText.addEventListener('input', (e) => {
+      sInput.value = e.target.value;
+      document.getElementById('secondaryVal').innerText = e.target.value;
+      updateIframeCssVar('--secondary-color', e.target.value);
+    });
+  }
+</script>
+{% endblock %}
+

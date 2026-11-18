@@ -1,0 +1,204 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Publish Website & Deployment | Dental Clinic Website Builder{% endblock %}
+{% block page_title %}Publish Website: {{ clinic.name }}{% endblock %}
+{% block page_subtitle %}Domain mapping, hosting configuration, SSL certificates, static package export, and production deployment{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <div class="row g-4 mb-4">
+    <!-- Left Column: Publishing Pipeline -->
+    <div class="col-lg-7">
+      
+      <!-- Live Status & Domain Card -->
+      <div class="form-card mb-4">
+        <div class="form-card-header">
+          <h6 class="mb-0 fw-bold"><i class="fa-solid fa-cloud-arrow-up text-primary me-2"></i>Publishing & Domain Pipeline</h6>
+          <span class="badge badge-status badge-{{ clinic.status }}">{{ clinic.get_status_display }}</span>
+        </div>
+        <div class="form-card-body">
+          <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="publish">
+
+            <div class="mb-3">
+              <label class="form-label">Assigned Production Domain Name <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-globe"></i> https://</span>
+                <input type="text" name="domain_name" class="form-control" value="{{ clinic.domain_name }}" placeholder="www.yourclinic.com" required>
+              </div>
+              <small class="text-muted" style="font-size: 0.75rem;">Your custom domain or subdomain</small>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Hosting Environment</label>
+                <select name="hosting_type" class="form-select">
+                  <option value="dynamic_managed" {% if clinic.hosting_type == 'dynamic_managed' %}selected{% endif %}>Dynamic Managed (Python/Django)</option>
+                  <option value="apache_cpanel" {% if clinic.hosting_type == 'apache_cpanel' %}selected{% endif %}>cPanel / Apache Shared Hosting</option>
+                  <option value="nginx_vhost" {% if clinic.hosting_type == 'nginx_vhost' %}selected{% endif %}>Nginx Cloud Virtual Host</option>
+                  <option value="static_export" {% if clinic.hosting_type == 'static_export' %}selected{% endif %}>Static Web Host (Netlify / Vercel / S3)</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">SSL/HTTPS Certificate Status</label>
+                <select name="ssl_status" class="form-select">
+                  <option value="active" {% if clinic.ssl_status == 'active' %}selected{% endif %}>Active & Enforced (Let's Encrypt / TLS 1.3)</option>
+                  <option value="pending" {% if clinic.ssl_status == 'pending' %}selected{% endif %}>Pending DNS Verification</option>
+                  <option value="self_signed" {% if clinic.ssl_status == 'self_signed' %}selected{% endif %}>Self-Signed / Development</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Confirmation & Backup Safety Check -->
+            <div class="p-3 bg-light rounded border mb-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="backupConfirm" required checked>
+                <label class="form-check-label small fw-semibold" for="backupConfirm">
+                  Create automatic database & content snapshot before updating live website.
+                </label>
+                <small class="text-muted d-block" style="font-size: 0.75rem;">Protects existing clinic content and ensures zero downtime during publish updates.</small>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+              <button type="submit" class="btn btn-primary fw-bold px-4 py-2 shadow-sm">
+                <i class="fa-solid fa-cloud-arrow-up me-1"></i> Publish / Update Live Website
+              </button>
+              <a href="{% url 'site_home' clinic.slug %}" target="_blank" class="btn btn-outline-secondary fw-semibold py-2">
+                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Verify Live Portal
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Static ZIP Export Card -->
+      <div class="form-card mb-4">
+        <div class="form-card-header">
+          <h6 class="mb-0 fw-bold"><i class="fa-solid fa-file-zipper text-warning me-2"></i>Standalone Static Website Package Export</h6>
+        </div>
+        <div class="card-body p-4">
+          <p class="small text-muted mb-3">
+            Generate and download a self-contained, offline-ready production package. Includes all 7 HTML pages, CSS stylesheets, JavaScript files, sitemap.xml, robots.txt, and complete deployment instructions.
+          </p>
+
+          <a href="{% url 'export_website_zip_by_id' clinic.id %}" class="btn btn-outline-primary fw-bold">
+            <i class="fa-solid fa-download me-1"></i> Download {{ clinic.slug }}_production_website.zip
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: DNS Guide & Server Config -->
+    <div class="col-lg-5">
+      
+      <!-- DNS Configuration Guide -->
+      <div class="form-card mb-4">
+        <div class="form-card-header">
+          <h6 class="mb-0 fw-bold"><i class="fa-solid fa-network-wired text-info me-2"></i>DNS Configuration Guide</h6>
+        </div>
+        <div class="card-body p-4">
+          <p class="small text-muted mb-3">Point your domain DNS records to your dental hosting server:</p>
+
+          <div class="table-responsive small">
+            <table class="table table-bordered mb-3">
+              <thead class="table-light">
+                <tr>
+                  <th>Type</th>
+                  <th>Host / Name</th>
+                  <th>Target / Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>A</code></td>
+                  <td><code>@</code></td>
+                  <td><code>192.0.2.1</code> (Hosting Server IP)</td>
+                </tr>
+                <tr>
+                  <td><code>CNAME</code></td>
+                  <td><code>www</code></td>
+                  <td><code>{{ clinic.slug }}.dentalhost.com</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="p-2 bg-success-subtle text-success border border-success-subtle rounded small">
+            <i class="fa-solid fa-shield-check me-1"></i> HTTPS auto-renews via Let's Encrypt upon DNS resolution.
+          </div>
+        </div>
+      </div>
+
+      <!-- Nginx / Apache Server Config Generator -->
+      <div class="form-card mb-4">
+        <div class="form-card-header">
+          <h6 class="mb-0 fw-bold"><i class="fa-solid fa-server text-secondary me-2"></i>Virtual Host Config Preview</h6>
+        </div>
+        <div class="card-body p-4">
+          <span class="small fw-semibold text-muted d-block mb-1">Nginx Server Block (Auto Generated):</span>
+          <pre class="bg-dark text-white p-3 rounded font-monospace small mb-0" style="font-size: 0.74rem;">server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name {{ clinic.domain_name|default:"www.yourclinic.com" }};
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}</pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Deployment Audit Logs -->
+  <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+    <div class="card-header bg-white py-3 px-4 border-bottom">
+      <h6 class="mb-0 fw-bold"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>Publishing & Deployment History</h6>
+    </div>
+    <div class="table-responsive">
+      <table class="builder-table">
+        <thead>
+          <tr>
+            <th>Deployment Date</th>
+            <th>Target Domain / Host</th>
+            <th>Status</th>
+            <th>Deployment Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for dep in deployments %}
+          <tr>
+            <td class="fw-semibold text-dark">{{ dep.deployed_at|date:"M d, Y H:i:s" }}</td>
+            <td><code>{{ dep.target_domain }}</code></td>
+            <td>
+              <span class="badge bg-success-subtle text-success border border-success-subtle fw-semibold px-2 py-1">
+                {{ dep.status }}
+              </span>
+            </td>
+            <td>
+              <span class="small text-muted">{{ dep.notes }}</span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center py-4 text-muted">
+              No deployments recorded yet. Click Publish above to record your first deployment.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+

@@ -1,0 +1,123 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Edit Page: {{ page.title }} | Dental Clinic Website Builder{% endblock %}
+{% block page_title %}Edit Page: {{ page.title }}{% endblock %}
+{% block page_subtitle %}Customize content, banner headlines, and SEO settings for this page{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        
+        <!-- Basic Settings -->
+        <div class="form-card mb-4">
+          <div class="form-card-header">
+            <h6 class="mb-0 fw-bold"><i class="fa-solid fa-file-lines text-primary me-2"></i>Page Details & Content</h6>
+            <span class="badge bg-light text-dark border">{{ page.get_page_type_display }}</span>
+          </div>
+          <div class="form-card-body">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label">Page Navigation Title <span class="text-danger">*</span></label>
+                <input type="text" name="title" class="form-control" value="{{ page.title }}" required>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Menu Order</label>
+                <input type="number" name="nav_order" class="form-control" value="{{ page.nav_order }}">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Hero Banner Headline</label>
+                <input type="text" name="hero_title" class="form-control" value="{{ page.hero_title }}" placeholder="e.g. World-Class Implant Surgery & Care">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Hero Subheadline / Brief Description</label>
+                <textarea name="hero_subtitle" class="form-control" rows="2">{{ page.hero_subtitle }}</textarea>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Hero Background Image</label>
+                <input type="file" name="hero_image" class="form-control" accept="image/*">
+                {% if page.hero_image %}
+                <div class="mt-2 text-muted small">Current image: <a href="{{ page.hero_image.url }}" target="_blank">View File</a></div>
+                {% endif %}
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Custom Page Content / Introduction (HTML / Text)</label>
+                <textarea name="content_html" class="form-control font-monospace" rows="6" placeholder="Optional custom body text or HTML block...">{{ page.content_html }}</textarea>
+                <small class="text-muted" style="font-size: 0.75rem;">Appears on this page alongside the standard dynamic dental clinic components</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page Specific SEO -->
+        <div class="form-card mb-4">
+          <div class="form-card-header">
+            <h6 class="mb-0 fw-bold"><i class="fa-solid fa-magnifying-glass text-info me-2"></i>Page-Specific SEO Configuration</h6>
+          </div>
+          <div class="form-card-body">
+            <div class="mb-3">
+              <label class="form-label">SEO Page Title</label>
+              <input type="text" name="seo_title" class="form-control" value="{{ page.seo_title }}" placeholder="e.g. Dental Implants & Oral Surgery | Clinic Name">
+              <small class="text-muted" style="font-size: 0.75rem;">Optimal length: 50-60 characters</small>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Meta Description</label>
+              <textarea name="seo_description" class="form-control" rows="3" placeholder="Brief summary of this dental service or page for search engines...">{{ page.seo_description }}</textarea>
+              <small class="text-muted" style="font-size: 0.75rem;">Optimal length: 140-160 characters</small>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label">Focus Keywords</label>
+              <input type="text" name="seo_keywords" class="form-control" value="{{ page.seo_keywords }}" placeholder="dentist, dental implants, pain-free tooth extraction">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Visibility & Actions -->
+      <div class="col-lg-4">
+        <div class="form-card mb-4 sticky-top" style="top: 85px;">
+          <div class="form-card-header">
+            <h6 class="mb-0 fw-bold"><i class="fa-solid fa-eye text-success me-2"></i>Page Visibility</h6>
+          </div>
+          <div class="form-card-body">
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" name="is_active" id="isActiveCheck" {% if page.is_active %}checked{% endif %}>
+              <label class="form-check-label fw-semibold" for="isActiveCheck">Page Active & Accessible</label>
+              <small class="text-muted d-block" style="font-size: 0.75rem;">When unchecked, visitors receive 404</small>
+            </div>
+
+            <div class="form-check form-switch mb-4">
+              <input class="form-check-input" type="checkbox" name="show_in_nav" id="showInNavCheck" {% if page.show_in_nav %}checked{% endif %}>
+              <label class="form-check-label fw-semibold" for="showInNavCheck">Show in Navigation Menu</label>
+              <small class="text-muted d-block" style="font-size: 0.75rem;">Visible in the clinic's top header navigation</small>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary fw-bold py-2 shadow-sm">
+                <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
+              </button>
+              <a href="{% url 'pages_list' %}" class="btn btn-outline-secondary">
+                Back to All Pages
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+</div>
+{% endblock %}
+

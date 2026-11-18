@@ -1,0 +1,105 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}{% if doctor %}Edit Doctor: {{ doctor.name }}{% else %}Add Dental Surgeon{% endif %} | Dental Clinic Website Builder{% endblock %}
+{% block page_title %}{% if doctor %}Edit Doctor: {{ doctor.name }}{% else %}Add Dental Surgeon{% endif %}{% endblock %}
+{% block page_subtitle %}Manage doctor qualifications, specialization, bio, and availability{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="form-card">
+      <div class="form-card-header">
+        <h6 class="mb-0 fw-bold"><i class="fa-solid fa-user-doctor text-primary me-2"></i>Doctor Profile Information</h6>
+        <span class="badge bg-light text-dark border">{{ clinic.name }}</span>
+      </div>
+      <div class="form-card-body">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">Doctor Name <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control" value="{{ doctor.name|default:'' }}" placeholder="e.g. Dr. Robert Vance, DDS, FICOI" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Years of Experience</label>
+              <input type="number" name="experience_years" class="form-control" value="{{ doctor.experience_years|default:10 }}" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Qualifications / Degrees <span class="text-danger">*</span></label>
+              <input type="text" name="qualification" class="form-control" value="{{ doctor.qualification|default:'BDS, MDS - Prosthodontics & Implantology' }}" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Specialization / Role Title <span class="text-danger">*</span></label>
+              <input type="text" name="specialization" class="form-control" value="{{ doctor.specialization|default:'Senior Implantologist & Dental Surgeon' }}" required>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Professional Biography / Description</label>
+              <textarea name="bio" class="form-control" rows="4" placeholder="Specialist background, surgical achievements, clinical philosophy...">{{ doctor.bio|default:'' }}</textarea>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Available Days / Consultation Hours</label>
+              <input type="text" name="available_days" class="form-control" value="{{ doctor.available_days|default:'Mon, Wed, Fri & Sat' }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Consultation Fee</label>
+              <input type="text" name="consultation_fee" class="form-control" value="{{ doctor.consultation_fee|default:'$50' }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Doctor Photograph</label>
+              <input type="file" name="photo" class="form-control" accept="image/*">
+              {% if doctor.photo %}
+              <div class="mt-2 small text-muted">Current photo: <a href="{{ doctor.photo.url }}" target="_blank">View Photo</a></div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Display Order</label>
+              <input type="number" name="order" class="form-control" value="{{ doctor.order|default:1 }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">LinkedIn Profile URL</label>
+              <input type="url" name="linkedin_url" class="form-control" value="{{ doctor.linkedin_url|default:'' }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Instagram Handle URL</label>
+              <input type="url" name="instagram_url" class="form-control" value="{{ doctor.instagram_url|default:'' }}">
+            </div>
+
+            <div class="col-12 pt-2 border-top">
+              <div class="d-flex align-items-center gap-4">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" name="is_active" id="docActive" {% if not doctor or doctor.is_active %}checked{% endif %}>
+                  <label class="form-check-label fw-semibold" for="docActive">Show on Website</label>
+                </div>
+
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" name="appointment_enabled" id="docAppt" {% if not doctor or doctor.appointment_enabled %}checked{% endif %}>
+                  <label class="form-check-label fw-semibold" for="docAppt">Allow Patient Appointments</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+              <a href="{% url 'doctors_list' %}" class="btn btn-secondary px-4">Cancel</a>
+              <button type="submit" class="btn btn-primary px-4 fw-bold">
+                <i class="fa-solid fa-floppy-disk me-1"></i> Save Doctor
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

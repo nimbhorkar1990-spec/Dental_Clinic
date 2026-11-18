@@ -1,0 +1,96 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}{% if treatment %}Edit Treatment: {{ treatment.name }}{% else %}Add Treatment{% endif %} | Dental Clinic Website Builder{% endblock %}
+{% block page_title %}{% if treatment %}Edit Treatment: {{ treatment.name }}{% else %}Add Treatment{% endif %}{% endblock %}
+{% block page_subtitle %}Manage procedure details, clinical step-by-step workflow, benefits, and patient FAQs{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <div class="form-card">
+      <div class="form-card-header">
+        <h6 class="mb-0 fw-bold"><i class="fa-solid fa-tooth text-primary me-2"></i>Treatment Procedure Details</h6>
+        <span class="badge bg-light text-dark border">{{ clinic.name }}</span>
+      </div>
+      <div class="form-card-body">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="row g-3">
+            <div class="col-md-7">
+              <label class="form-label">Treatment Name <span class="text-danger">*</span></label>
+              <input type="text" name="name" class="form-control" value="{{ treatment.name|default:'' }}" placeholder="e.g. Dental Implants" required>
+            </div>
+
+            <div class="col-md-5">
+              <label class="form-label">FontAwesome Icon Class</label>
+              <input type="text" name="icon_class" class="form-control" value="{{ treatment.icon_class|default:'fa-solid fa-tooth' }}" placeholder="fa-solid fa-tooth">
+              <small class="text-muted" style="font-size: 0.75rem;">e.g. fa-solid fa-tooth, fa-solid fa-wand-magic-sparkles</small>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Short Summary (For Card Overviews) <span class="text-danger">*</span></label>
+              <textarea name="short_description" class="form-control" rows="2" placeholder="Brief 1-2 sentence description..." required>{{ treatment.short_description|default:'' }}</textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Full Clinical Description (For Dedicated Treatment Page)</label>
+              <textarea name="full_description" class="form-control" rows="4" placeholder="Detailed medical explanation of the dental technique, technologies used, anesthesia...">{{ treatment.full_description|default:'' }}</textarea>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Estimated Starting Price</label>
+              <input type="text" name="price_starting_at" class="form-control" value="{{ treatment.price_starting_at|default:'From $299' }}">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Average Procedure Duration</label>
+              <input type="text" name="duration" class="form-control" value="{{ treatment.duration|default:'45 Mins' }}">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Display Order</label>
+              <input type="number" name="order" class="form-control" value="{{ treatment.order|default:1 }}">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Step-by-Step Procedure Workflow (One step per line)</label>
+              <textarea name="procedure_steps" class="form-control" rows="4" placeholder="1. Comprehensive digital radiographic exam&#10;2. Computer-guided placement&#10;3. Final crown bonding">{{ treatment.procedure_steps|default:'' }}</textarea>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Patient Benefits (One benefit per line)</label>
+              <textarea name="benefits" class="form-control" rows="4" placeholder="Permanent lifelong tooth replacement&#10;Zero discomfort with laser anesthesia&#10;Preserves jawbone structure">{{ treatment.benefits|default:'' }}</textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Frequently Asked Questions (Q&A Format)</label>
+              <textarea name="faqs" class="form-control" rows="4" placeholder="Q: Is this treatment painful?&#10;A: Zero pain with local numbing.&#10;&#10;Q: How long does recovery take?&#10;A: Most patients resume daily life immediately.">{{ treatment.faqs|default:'' }}</textarea>
+            </div>
+
+            <div class="col-md-8">
+              <label class="form-label">Featured Image / Diagram</label>
+              <input type="file" name="image" class="form-control" accept="image/*">
+            </div>
+
+            <div class="col-md-4 d-flex align-items-center">
+              <div class="form-check form-switch mt-4">
+                <input class="form-check-input" type="checkbox" name="is_featured" id="featCheck" {% if not treatment or treatment.is_featured %}checked{% endif %}>
+                <label class="form-check-label fw-semibold" for="featCheck">Featured on Homepage</label>
+              </div>
+            </div>
+
+            <div class="col-12 mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+              <a href="{% url 'treatments_list' %}" class="btn btn-secondary px-4">Cancel</a>
+              <button type="submit" class="btn btn-primary px-4 fw-bold">
+                <i class="fa-solid fa-floppy-disk me-1"></i> Save Treatment
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

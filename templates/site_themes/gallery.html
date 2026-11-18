@@ -1,0 +1,105 @@
+{% extends 'site_themes/base.html' %}
+
+{% block content %}
+<!-- Page Hero Banner -->
+<section class="py-5 text-white position-relative" style="background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));">
+  <div class="container py-4 text-center">
+    <span class="badge bg-white text-primary px-3 py-1 rounded-pill small fw-bold mb-2">Visual Tour & Smile Makeovers</span>
+    <h1 class="display-5 fw-bold text-white mb-2">{{ current_page.hero_title|default:"Clinic Tour & Smile Transformations" }}</h1>
+    <p class="lead text-white-50 mx-auto mb-0" style="max-width: 650px;">
+      {{ current_page.hero_subtitle|default:"Explore our hygienic facilities, modern operatory suites, and real patient before & after smile transformations." }}
+    </p>
+  </div>
+</section>
+
+<!-- Filterable Gallery Section -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    
+    <!-- Filter Buttons -->
+    <div class="text-center mb-5">
+      <button class="gallery-filter-btn active" onclick="filterGallery('all')">All Photographs ({{ gallery_items.count }})</button>
+      <button class="gallery-filter-btn" onclick="filterGallery('clinic_interior')">Clinic Interior</button>
+      <button class="gallery-filter-btn" onclick="filterGallery('equipment')">Modern Equipment</button>
+      <button class="gallery-filter-btn" onclick="filterGallery('before_after')">Before & After Makeovers</button>
+      <button class="gallery-filter-btn" onclick="filterGallery('happy_patients')">Patient Smiles</button>
+    </div>
+
+    <!-- Gallery Grid -->
+    <div class="row g-4" id="galleryContainer">
+      {% for item in gallery_items %}
+      <div class="col-lg-4 col-md-6 gallery-item-wrap" data-cat="{{ item.category }}">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 bg-light">
+          {% if item.category == 'before_after' and item.before_image and item.after_image %}
+          <!-- Interactive Before & After Slider -->
+          <div class="ba-slider-container">
+            <img src="{{ item.after_image.url }}" alt="After" class="ba-image">
+            <div class="ba-before-layer" id="layer_{{ item.id }}">
+              <img src="{{ item.before_image.url }}" alt="Before" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <span class="ba-slider-badge ba-badge-before">Before</span>
+            <span class="ba-slider-badge ba-badge-after">After</span>
+            <input type="range" min="0" max="100" value="50" class="ba-range-input" oninput="document.getElementById('layer_{{ item.id }}').style.width = this.value + '%'" title="Drag to compare before and after">
+          </div>
+          {% else %}
+          <!-- Standard Image / Fallback -->
+          <div class="position-relative" style="height: 240px; overflow: hidden; background: #e2e8f0; display: flex; align-items: center; justify-content: center;">
+            {% if item.image %}
+            <img src="{{ item.image.url }}" alt="{{ item.alt_text }}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;">
+            {% else %}
+            <div class="text-center p-4 text-secondary opacity-50">
+              <i class="fa-solid fa-tooth fa-4x mb-2 d-block text-primary"></i>
+              <span class="small fw-semibold">{{ item.title }}</span>
+            </div>
+            {% endif %}
+            <span class="position-absolute top-0 end-0 m-3 badge bg-dark bg-opacity-75 small">
+              {{ item.get_category_display }}
+            </span>
+          </div>
+          {% endif %}
+
+          <div class="p-3 bg-white">
+            <h6 class="fw-bold text-dark mb-1">{{ item.title }}</h6>
+            <p class="small text-muted mb-0" style="font-size: 0.82rem;">{{ item.description }}</p>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5">
+        <p class="text-muted">No gallery photographs added yet.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Free Consultation Callout -->
+    <div class="mt-5 p-4 rounded-4 text-white text-center" style="background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));">
+      <h3 class="fw-bold mb-2 text-white">Experience Our Modern Clinical Infrastructure</h3>
+      <p class="text-white-50 mx-auto mb-4" style="max-width: 550px;">
+        Book a clinic tour or diagnostic consult to see our zero-pain anesthesia delivery and sterile sterilization suite in person.
+      </p>
+      <a href="{% url 'site_appointment' clinic.slug %}" class="btn btn-light btn-lg text-primary fw-bold px-4 shadow">
+        <i class="fa-solid fa-calendar-check me-2"></i> Book Your Visit
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function filterGallery(cat) {
+    document.querySelectorAll('.gallery-filter-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    const items = document.querySelectorAll('.gallery-item-wrap');
+    items.forEach(el => {
+      if (cat === 'all' || el.dataset.cat === cat) {
+        el.style.display = 'block';
+      } else {
+        el.style.display = 'none';
+      }
+    });
+  }
+</script>
+{% endblock %}
+

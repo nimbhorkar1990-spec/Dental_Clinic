@@ -1,0 +1,155 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Gallery Management | Dental Clinic Website Builder{% endblock %}
+{% block page_title %}Gallery Management: {{ clinic.name }}{% endblock %}
+{% block page_subtitle %}Upload and manage clinic interiors, 3D equipment, operatory suites, and before & after smile transformations{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <!-- Controls Bar -->
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <!-- Category Tabs -->
+    <div class="btn-group" role="group">
+      <a href="{% url 'gallery_list' %}" class="btn btn-sm {% if not current_category %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+        All Media ({{ clinic.gallery_items.count }})
+      </a>
+      {% for cat_key, cat_name in categories %}
+      <a href="{% url 'gallery_list' %}?category={{ cat_key }}" class="btn btn-sm {% if current_category == cat_key %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+        {{ cat_name }}
+      </a>
+      {% endfor %}
+    </div>
+
+    <!-- Upload Button -->
+    <button class="btn btn-primary fw-semibold btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#uploadMediaModal">
+      <i class="fa-solid fa-cloud-arrow-up me-1"></i> Upload Photograph
+    </button>
+  </div>
+
+  <!-- Gallery Grid -->
+  <div class="row g-4">
+    {% for item in items %}
+    <div class="col-md-6 col-xl-3">
+      <div class="card border-0 shadow-sm rounded-3 h-100 overflow-hidden d-flex flex-column">
+        <!-- Image Preview -->
+        <div class="position-relative bg-light" style="height: 190px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+          {% if item.image %}
+          <img src="{{ item.image.url }}" alt="{{ item.alt_text }}" class="w-100 h-100" style="object-fit: cover;">
+          {% else %}
+          <div class="p-3 text-secondary opacity-50 text-center">
+            <i class="fa-solid fa-image fa-3x mb-1 d-block"></i>
+            <span class="small">Clinical Photography Asset</span>
+          </div>
+          {% endif %}
+          <span class="position-absolute top-0 end-0 m-2 badge bg-dark bg-opacity-75 small">
+            {{ item.get_category_display }}
+          </span>
+        </div>
+
+        <div class="card-body p-3 d-flex flex-column flex-fill">
+          <h6 class="fw-bold text-dark mb-1">{{ item.title }}</h6>
+          <p class="small text-muted mb-3 flex-fill" style="font-size: 0.8rem;">{{ item.description|default:"Verified clinic facility image" }}</p>
+          <div class="small text-muted mb-2">
+            <strong>Alt Text:</strong> {{ item.alt_text|default:"Dental clinic photograph" }}
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between pt-2 border-top mt-auto">
+            <span class="small text-muted">Order: {{ item.order }}</span>
+            <form method="POST" action="{% url 'gallery_delete' item.id %}" onsubmit="return confirm('Remove photo {{ item.title }}?');">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Delete">
+                <i class="fa-solid fa-trash me-1"></i> Remove
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="card border-0 shadow-sm rounded-3 p-5 text-center text-muted">
+        <i class="fa-solid fa-images fa-3x mb-3 text-secondary opacity-50"></i>
+        <h6 class="fw-bold">No Photos in this Category</h6>
+        <p class="small mb-3">Upload clinic photographs to showcase your sterile environment and beautiful smile makeovers.</p>
+        <div>
+          <button class="btn btn-primary btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#uploadMediaModal">
+            <i class="fa-solid fa-cloud-arrow-up me-1"></i> Upload Photos Now
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Upload Modal -->
+  <div class="modal fade" id="uploadMediaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form method="POST" action="{% url 'gallery_create' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h6 class="modal-title fw-bold"><i class="fa-solid fa-cloud-arrow-up text-primary me-2"></i>Upload Dental Photograph / Media</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="row g-3">
+              <div class="col-md-7">
+                <label class="form-label">Photo Title <span class="text-danger">*</span></label>
+                <input type="text" name="title" class="form-control" placeholder="e.g. 3D Digital Implant Surgery Operatory" required>
+              </div>
+
+              <div class="col-md-5">
+                <label class="form-label">Gallery Category <span class="text-danger">*</span></label>
+                <select name="category" class="form-select" required>
+                  {% for cat_key, cat_name in categories %}
+                  <option value="{{ cat_key }}">{{ cat_name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-md-8">
+                <label class="form-label">Primary Image File</label>
+                <input type="file" name="image" class="form-control" accept="image/*">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Sort Order</label>
+                <input type="number" name="order" class="form-control" value="1">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Before Photo (Optional - for Before/After compare)</label>
+                <input type="file" name="before_image" class="form-control" accept="image/*">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">After Photo (Optional - for Before/After compare)</label>
+                <input type="file" name="after_image" class="form-control" accept="image/*">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">SEO Image Alt Text <span class="text-danger">*</span></label>
+                <input type="text" name="alt_text" class="form-control" placeholder="Descriptive alt text for Google Image SEO" value="Modern dental clinic treatment operatory" required>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Description / Caption</label>
+                <textarea name="description" class="form-control" rows="2" placeholder="Caption displayed when patients click this photograph..."></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-sm fw-semibold">
+              <i class="fa-solid fa-upload me-1"></i> Upload Image
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+

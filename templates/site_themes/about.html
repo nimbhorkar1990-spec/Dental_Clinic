@@ -1,0 +1,140 @@
+{% extends 'site_themes/base.html' %}
+
+{% block content %}
+<!-- Page Hero Banner -->
+<section class="py-5 text-white position-relative" style="background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));">
+  <div class="container py-4 text-center">
+    <span class="badge bg-white text-primary px-3 py-1 rounded-pill small fw-bold mb-2">About Our Dental Practice</span>
+    <h1 class="display-5 fw-bold text-white mb-2">{{ current_page.hero_title|default:"About Our Clinic" }}</h1>
+    <p class="lead text-white-50 mx-auto mb-0" style="max-width: 650px;">
+      {{ current_page.hero_subtitle|default:"A decade of clinical excellence, sterile European hygiene standards, and compassionate patient relationships." }}
+    </p>
+  </div>
+</section>
+
+<!-- 1. Clinic Overview & Story -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="section-subtitle">Since {{ clinic.history_founded_year|default:"2012" }}</span>
+        <h2 class="section-title text-start mb-3">Our Clinical Heritage & Philosophy</h2>
+        <p class="lead text-muted mb-4">
+          {{ clinic.about_short }}
+        </p>
+        <p class="text-muted mb-4" style="line-height: 1.8;">
+          {{ clinic.about_full }}
+        </p>
+
+        <div class="d-flex align-items-center gap-4 p-3 bg-light rounded-3 border">
+          <div class="p-3 bg-primary text-white rounded-circle">
+            <i class="fa-solid fa-medal fa-2x"></i>
+          </div>
+          <div>
+            <h6 class="fw-bold mb-1">Decade of Excellence</h6>
+            <span class="small text-muted">Over 15,000 successful smile rehabilitations completed with uncompromising clinical precision.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="p-4 bg-light rounded-4 border">
+          <h4 class="fw-bold mb-4 text-dark"><i class="fa-solid fa-heart-pulse text-primary me-2"></i>Mission & Vision</h4>
+
+          <div class="card border-0 shadow-sm rounded-3 p-4 mb-3 bg-white">
+            <h5 class="fw-bold text-primary mb-2"><i class="fa-solid fa-bullseye me-2"></i>Our Clinical Mission</h5>
+            <p class="small text-muted mb-0" style="line-height: 1.7;">{{ clinic.mission }}</p>
+          </div>
+
+          <div class="card border-0 shadow-sm rounded-3 p-4 bg-white">
+            <h5 class="fw-bold text-secondary mb-2"><i class="fa-solid fa-eye me-2"></i>Our Vision</h5>
+            <p class="small text-muted mb-0" style="line-height: 1.7;">{{ clinic.vision }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Infrastructure & Facilities Section -->
+<section class="py-5" style="background-color: var(--light-bg);">
+  <div class="container py-4">
+    <div class="section-title-wrap">
+      <span class="section-subtitle">Clinical Infrastructure</span>
+      <h2 class="section-title">State-of-the-Art Dental Technology</h2>
+      <p class="text-muted mx-auto" style="max-width: 650px;">
+        We invest continuously in computerized diagnostic equipment and surgical operatory suites to ensure safety, speed, and zero discomfort.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+          <div class="feature-badge-icon mb-3"><i class="fa-solid fa-microchip"></i></div>
+          <h5 class="fw-bold mb-2">Digital CBCT 3D Scanning</h5>
+          <p class="small text-muted mb-0">High-resolution 3D volumetric bone mapping with 90% lower radiation than traditional hospital CT scanners.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+          <div class="feature-badge-icon mb-3"><i class="fa-solid fa-shield-virus"></i></div>
+          <h5 class="fw-bold mb-2">Class-B Autoclave Sterilization</h5>
+          <p class="small text-muted mb-0">Strict multi-tier medical sterilization protocols with spore testing and sterile individually sealed instruments.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+          <div class="feature-badge-icon mb-3"><i class="fa-solid fa-teeth-open"></i></div>
+          <h5 class="fw-bold mb-2">Same-Day CAD/CAM Milling</h5>
+          <p class="small text-muted mb-0">Digital intraoral impression scans with in-house ceramic milling, eliminating the wait for dental laboratories.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Facilities Text Box -->
+    <div class="mt-4 p-4 bg-white rounded-4 border shadow-sm">
+      <h6 class="fw-bold mb-2 text-dark"><i class="fa-solid fa-check-double text-success me-2"></i>Full Clinical Facilities:</h6>
+      <p class="small text-muted mb-0" style="line-height: 1.8;">
+        {{ clinic.facilities_text }}
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Our Specialist Doctors Spotlight -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="section-title-wrap">
+      <span class="section-subtitle">Surgeon Team</span>
+      <h2 class="section-title">Led By Board-Certified Specialists</h2>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+      {% for doc in doctors %}
+      <div class="col-lg-3 col-md-6">
+        <div class="doctor-card">
+          <div class="doctor-photo-wrap">
+            {% if doc.photo %}
+            <img src="{{ doc.photo.url }}" alt="{{ doc.name }}" class="doctor-photo-img">
+            {% else %}
+            <i class="fa-solid fa-user-doctor doctor-placeholder-avatar"></i>
+            {% endif %}
+          </div>
+          <div class="doctor-info-box">
+            <h5 class="doctor-name">{{ doc.name }}</h5>
+            <div class="doctor-specialty">{{ doc.specialization }}</div>
+            <div class="doctor-qual">{{ doc.qualification }}</div>
+            <a href="{% url 'site_appointment' clinic.slug %}?doctor={{ doc.name }}" class="btn btn-clinic-primary btn-sm w-100">
+              Book With Specialist
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+

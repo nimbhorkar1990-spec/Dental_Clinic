@@ -1,0 +1,504 @@
+{% extends 'site_themes/base.html' %}
+
+{% block content %}
+<!-- 1. Hero Banner Section -->
+<section class="clinic-hero">
+  <div class="container position-relative">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <span class="hero-badge">
+          <i class="fa-solid fa-award text-primary"></i> Certified Dental Surgeons & Implant Specialists
+        </span>
+        <h1 class="hero-headline">
+          {{ clinic.banner_headline }}
+        </h1>
+        <p class="hero-subheadline">
+          {{ clinic.banner_subheadline }}
+        </p>
+
+        <div class="d-flex align-items-center flex-wrap gap-3 mb-4">
+          <a href="{% url 'site_appointment' clinic.slug %}" class="btn btn-clinic-primary btn-lg shadow">
+            <i class="fa-solid fa-calendar-check me-2"></i> {{ clinic.banner_cta_text }}
+          </a>
+          <a href="{% url 'site_treatments' clinic.slug %}" class="btn btn-clinic-outline btn-lg">
+            {{ clinic.banner_secondary_cta_text }}
+          </a>
+          <a href="{{ wa_url }}" target="_blank" class="btn btn-outline-success btn-lg fw-bold" style="border-radius: 8px;">
+            <i class="fa-brands fa-whatsapp fa-lg me-1"></i> WhatsApp
+          </a>
+        </div>
+
+        <div class="d-flex align-items-center gap-4 pt-3 border-top">
+          <div>
+            <h4 class="fw-bold mb-0 text-dark">15,000+</h4>
+            <span class="small text-muted">Happy Patient Smiles</span>
+          </div>
+          <div class="border-start ps-4">
+            <h4 class="fw-bold mb-0 text-dark">99.4%</h4>
+            <span class="small text-muted">Clinical Success Rate</span>
+          </div>
+          <div class="border-start ps-4">
+            <h4 class="fw-bold mb-0 text-dark">12+</h4>
+            <span class="small text-muted">Years of Practice</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Visual Card / Floating Booking Card -->
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+          <div class="p-4 text-white" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+            <h4 class="fw-bold mb-1 text-white"><i class="fa-solid fa-tooth me-2"></i>Instant Consultation</h4>
+            <span class="small text-white-50">Reserve your priority appointment in under 60 seconds</span>
+          </div>
+
+          <div class="p-4 bg-white">
+            <form method="POST" action="{% url 'site_submit_appointment' clinic.slug %}">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Your Full Name <span class="text-danger">*</span></label>
+                <input type="text" name="patient_name" class="form-control form-control-sm" placeholder="e.g. John Doe" required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Mobile Phone / WhatsApp <span class="text-danger">*</span></label>
+                <input type="tel" name="mobile_number" class="form-control form-control-sm" placeholder="e.g. +1 (555) 000-0000" required>
+              </div>
+
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Preferred Date</label>
+                  <input type="date" name="appointment_date" class="form-control form-control-sm" required>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Preferred Time</label>
+                  <select name="preferred_time" class="form-select form-select-sm">
+                    <option value="morning">Morning (9am - 12pm)</option>
+                    <option value="afternoon">Afternoon (12pm - 4pm)</option>
+                    <option value="evening">Evening (4pm - 7:30pm)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Treatment Needed</label>
+                <select name="treatment" class="form-select form-select-sm">
+                  {% for t in treatments %}
+                  <option value="{{ t.name }}">{{ t.name }}</option>
+                  {% empty %}
+                  <option value="General Checkup">General Consultation</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="d-grid">
+                <button type="submit" class="btn btn-clinic-primary fw-bold">
+                  <i class="fa-solid fa-check-circle me-1"></i> Request Appointment
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Feature Badges Bar -->
+<section class="py-4 bg-white border-bottom">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-md-3 col-sm-6">
+        <div class="feature-badge-box">
+          <div class="feature-badge-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          <div>
+            <h6 class="fw-bold mb-0 text-dark">Strict Sterilization</h6>
+            <span class="small text-muted">Class-B European Autoclaves</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="feature-badge-box">
+          <div class="feature-badge-icon"><i class="fa-solid fa-microscope"></i></div>
+          <div>
+            <h6 class="fw-bold mb-0 text-dark">3D Digital Imaging</h6>
+            <span class="small text-muted">Low-dose CBCT & Laser Scans</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="feature-badge-box">
+          <div class="feature-badge-icon"><i class="fa-solid fa-feather-pointed"></i></div>
+          <div>
+            <h6 class="fw-bold mb-0 text-dark">Pain-Free Dentistry</h6>
+            <span class="small text-muted">Gentle Computerized Delivery</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="feature-badge-box">
+          <div class="feature-badge-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+          <div>
+            <h6 class="fw-bold mb-0 text-dark">Same-Day Crowns</h6>
+            <span class="small text-muted">In-house CAD/CAM Milling</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Clinic Introduction -->
+<section class="py-5" style="background-color: var(--light-bg);">
+  <div class="container py-4">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="section-subtitle">Welcome to {{ clinic.name }}</span>
+        <h2 class="section-title text-start mb-3">Redefining Contemporary Dental Wellness</h2>
+        <p class="text-muted mb-4 lead" style="font-size: 1.05rem;">
+          {{ clinic.about_short }}
+        </p>
+        <p class="text-muted mb-4">
+          {{ clinic.about_full|truncatewords:60 }}
+        </p>
+
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-circle-check text-success"></i>
+              <span class="small fw-semibold">Zero-Wait Private Lounges</span>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-circle-check text-success"></i>
+              <span class="small fw-semibold">Transparent Pricing</span>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-circle-check text-success"></i>
+              <span class="small fw-semibold">Emergency Dental Availability</span>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-circle-check text-success"></i>
+              <span class="small fw-semibold">Board-Certified Specialists</span>
+            </div>
+          </div>
+        </div>
+
+        <a href="{% url 'site_about' clinic.slug %}" class="btn btn-clinic-primary">
+          Learn More About Our Clinic →
+        </a>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="p-4 bg-white rounded-4 shadow-sm border position-relative">
+          <div class="p-3 bg-light rounded-3 mb-3 text-center">
+            <i class="fa-solid fa-hospital-user fa-4x text-primary my-3"></i>
+            <h5 class="fw-bold mb-1">{{ clinic.name }}</h5>
+            <span class="text-muted small">{{ clinic.address }}</span>
+          </div>
+
+          <div class="p-3 border rounded-3 bg-light-subtle mb-3">
+            <h6 class="fw-bold mb-1 small text-dark"><i class="fa-solid fa-microscope text-primary me-2"></i>Clinical Technology Highlights:</h6>
+            <p class="small text-muted mb-0">{{ clinic.facilities_text }}</p>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center p-3 rounded-3" style="background: rgba(14, 165, 233, 0.08);">
+            <div>
+              <span class="small text-muted d-block">Direct Patient Phone:</span>
+              <a href="tel:{{ clean_phone }}" class="fw-bold text-dark fs-5 text-decoration-none">{{ clinic.phone }}</a>
+            </div>
+            <a href="tel:{{ clean_phone }}" class="btn btn-sm btn-primary rounded-circle" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+              <i class="fa-solid fa-phone"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Featured Treatments Section -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="section-title-wrap">
+      <span class="section-subtitle">Clinical Excellence</span>
+      <h2 class="section-title">Specialized Dental Treatments</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px;">
+        Evidence-based surgical procedures, aesthetic smile design, and preventive dentistry delivered by credentialed specialists.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      {% for t in featured_treatments|slice:":6" %}
+      <div class="col-lg-4 col-md-6">
+        <div class="treatment-card">
+          <div class="treatment-card-icon">
+            <i class="{{ t.icon_class }}"></i>
+          </div>
+          <h4 class="treatment-card-title">{{ t.name }}</h4>
+          <p class="treatment-card-desc">{{ t.short_description }}</p>
+
+          <div class="treatment-meta">
+            <div>
+              <span class="text-muted small d-block">Starting from</span>
+              <span class="treatment-price">{{ t.price_starting_at }}</span>
+            </div>
+            <span class="badge bg-light text-dark border"><i class="fa-solid fa-clock me-1"></i> {{ t.duration }}</span>
+          </div>
+
+          <div class="mt-3 pt-2 d-flex align-items-center justify-content-between">
+            <a href="{% url 'site_treatment_detail' clinic.slug t.slug %}" class="btn btn-sm btn-outline-secondary fw-semibold">
+              Read Procedure →
+            </a>
+            <a href="{% url 'site_appointment' clinic.slug %}?treatment={{ t.name }}" class="btn btn-sm btn-clinic-primary">
+              Book
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-5">
+      <a href="{% url 'site_treatments' clinic.slug %}" class="btn btn-clinic-outline btn-lg">
+        Explore All {{ treatments.count }} Dental Treatments
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Why Choose Us -->
+<section class="py-5" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, rgba(3, 105, 161, 0.08) 100%);">
+  <div class="container py-4">
+    <div class="section-title-wrap">
+      <span class="section-subtitle">Why Patients Choose Us</span>
+      <h2 class="section-title">The Gold Standard in Dental Healthcare</h2>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100 bg-white">
+          <div class="feature-badge-icon mx-auto mb-3"><i class="fa-solid fa-user-doctor"></i></div>
+          <h5 class="fw-bold mb-2">Multidisciplinary Team</h5>
+          <p class="small text-muted mb-0">Board-certified implantologists, orthodontists, and microscopic endodontists collaborating under one roof.</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100 bg-white">
+          <div class="feature-badge-icon mx-auto mb-3"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <h5 class="fw-bold mb-2">Painless Protocols</h5>
+          <p class="small text-muted mb-0">Computer-assisted local anesthesia and relaxation sedation eliminate procedural anxiety completely.</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100 bg-white">
+          <div class="feature-badge-icon mx-auto mb-3"><i class="fa-solid fa-cubes"></i></div>
+          <h5 class="fw-bold mb-2">In-House CAD/CAM Lab</h5>
+          <p class="small text-muted mb-0">German precision zirconia crowns milled same-day with custom shade characterization.</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100 bg-white">
+          <div class="feature-badge-icon mx-auto mb-3"><i class="fa-solid fa-shield-virus"></i></div>
+          <h5 class="fw-bold mb-2">Hospital-Grade Sterilization</h5>
+          <p class="small text-muted mb-0">European Class-B autoclaves with ultrasonic chemical baths and sealed pouches opened before your eyes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Our Doctors Section -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="section-title-wrap">
+      <span class="section-subtitle">Expert Specialists</span>
+      <h2 class="section-title">Meet Our Board-Certified Dental Surgeons</h2>
+    </div>
+
+    <div class="row g-4">
+      {% for doc in doctors %}
+      <div class="col-lg-3 col-md-6">
+        <div class="doctor-card">
+          <div class="doctor-photo-wrap">
+            {% if doc.photo %}
+            <img src="{{ doc.photo.url }}" alt="{{ doc.name }}" class="doctor-photo-img">
+            {% else %}
+            <i class="fa-solid fa-user-doctor doctor-placeholder-avatar"></i>
+            {% endif %}
+            <span class="position-absolute bottom-0 start-0 m-3 badge bg-dark bg-opacity-75">
+              {{ doc.experience_years }}+ Yrs Experience
+            </span>
+          </div>
+
+          <div class="doctor-info-box">
+            <h5 class="doctor-name">{{ doc.name }}</h5>
+            <div class="doctor-specialty">{{ doc.specialization }}</div>
+            <div class="doctor-qual">{{ doc.qualification }}</div>
+
+            <div class="p-2 bg-light rounded small mb-3">
+              <span class="text-muted d-block" style="font-size: 0.75rem;">Consultation Days:</span>
+              <strong class="text-dark">{{ doc.available_days }}</strong>
+            </div>
+
+            <a href="{% url 'site_appointment' clinic.slug %}?doctor={{ doc.name }}" class="btn btn-clinic-primary btn-sm w-100">
+              <i class="fa-solid fa-calendar-check me-1"></i> Book Consultation
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="{% url 'site_doctors' clinic.slug %}" class="btn btn-outline-secondary">
+        View All Doctor Profiles & Credentials →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Interactive Before & After Smile Makeover Showcase -->
+<section class="py-5 bg-white border-top">
+  <div class="container py-4">
+    <div class="section-title-wrap">
+      <span class="section-subtitle">Real Results</span>
+      <h2 class="section-title">Before & After Smile Makeovers</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px;">
+        Slide the divider horizontally to reveal real patient smile transformations achieved with our conservative porcelain veneers, laser whitening, and clear aligners.
+      </p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden p-3 bg-light">
+          <div class="ba-slider-container" style="height: 340px;">
+            <div class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: #fff;">
+              <div class="text-center p-4">
+                <i class="fa-solid fa-wand-magic-sparkles fa-3x mb-2 text-warning"></i>
+                <h4 class="fw-bold mb-1 text-white">Full Smile Makeover with Porcelain Veneers</h4>
+                <p class="small text-white-50 mb-0">Even alignment, natural brightness & healthy gum margins</p>
+              </div>
+            </div>
+            <div class="ba-before-layer" id="homeBaLayer" style="width: 50%; background: linear-gradient(135deg, #334155, #0f172a); color: #fff;">
+              <div class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center" style="width: 650px; min-width: 550px;">
+                <div class="text-center p-4">
+                  <i class="fa-solid fa-tooth fa-3x mb-2 text-white-50"></i>
+                  <h4 class="fw-bold mb-1 text-white">Pre-Treatment Staining & Crowding</h4>
+                  <p class="small text-white-50 mb-0">Prior to clinical aesthetic correction</p>
+                </div>
+              </div>
+            </div>
+            <span class="ba-slider-badge ba-badge-before">Before Care</span>
+            <span class="ba-slider-badge ba-badge-after">After Transformation</span>
+            <input type="range" min="0" max="100" value="50" class="ba-range-input" oninput="document.getElementById('homeBaLayer').style.width = this.value + '%'" title="Drag to compare before and after">
+          </div>
+          <div class="p-3 text-center">
+            <span class="small fw-semibold text-muted"><i class="fa-solid fa-arrows-left-right me-1"></i> Drag the comparison divider left and right to inspect the clinical outcome</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="{% url 'site_gallery' clinic.slug %}" class="btn btn-clinic-outline">
+        Explore Full Clinic & Transformation Gallery →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Patient Testimonials -->
+<section class="py-5" style="background-color: var(--light-bg);">
+  <div class="container py-4">
+    <div class="section-title-wrap">
+      <span class="section-subtitle">Real Patient Stories</span>
+      <h2 class="section-title">Why Our Patients Trust Us</h2>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+          <div class="text-warning mb-2">
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          </div>
+          <p class="small text-muted mb-3 flex-fill">
+            "I had severe dental anxiety from previous traumatic experiences. The team at {{ clinic.name }} treated me with so much gentleness. My implant procedure was 100% painless!"
+          </p>
+          <div class="d-flex align-items-center gap-2 pt-2 border-top">
+            <span class="badge bg-primary rounded-circle p-2">SJ</span>
+            <div>
+              <span class="fw-bold small d-block">Sarah Jenkins</span>
+              <span class="text-muted" style="font-size: 0.72rem;">Dental Implant Patient</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+          <div class="text-warning mb-2">
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          </div>
+          <p class="small text-muted mb-3 flex-fill">
+            "My clear aligner journey with Dr. Elena was seamless. The 3D scan took only 5 minutes, and within 8 months my smile was perfectly straight. Highly recommended!"
+          </p>
+          <div class="d-flex align-items-center gap-2 pt-2 border-top">
+            <span class="badge bg-success rounded-circle p-2">MC</span>
+            <div>
+              <span class="fw-bold small d-block">Michael Chang</span>
+              <span class="text-muted" style="font-size: 0.72rem;">Invisalign Aligner Patient</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+          <div class="text-warning mb-2">
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+          </div>
+          <p class="small text-muted mb-3 flex-fill">
+            "Needed an emergency root canal while on a business trip. They accommodated me immediately, and the laser microscopic procedure eliminated all pain within an hour."
+          </p>
+          <div class="d-flex align-items-center gap-2 pt-2 border-top">
+            <span class="badge bg-info rounded-circle p-2">DM</span>
+            <div>
+              <span class="fw-bold small d-block">David Miller</span>
+              <span class="text-muted" style="font-size: 0.72rem;">Microscopic RCT Patient</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Consultation Call to Action Section -->
+<section class="py-5 text-white position-relative" style="background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));">
+  <div class="container py-4 text-center">
+    <h2 class="display-6 fw-bold mb-3 text-white">Ready for a Confident, Radiant Smile?</h2>
+    <p class="lead mb-4 mx-auto text-white-50" style="max-width: 650px;">
+      Schedule a comprehensive dental exam with 3D digital imaging today. Same-day appointments available for emergencies.
+    </p>
+
+    <div class="d-flex align-items-center justify-content-center flex-wrap gap-3">
+      <a href="{% url 'site_appointment' clinic.slug %}" class="btn btn-light btn-lg text-primary fw-bold px-4 shadow">
+        <i class="fa-solid fa-calendar-check me-2"></i> Book Online Consultation
+      </a>
+      <a href="tel:{{ clean_phone }}" class="btn btn-outline-light btn-lg fw-bold px-4">
+        <i class="fa-solid fa-phone me-2"></i> Call: {{ clinic.phone }}
+      </a>
+      <a href="{{ wa_url }}" target="_blank" class="btn btn-success btn-lg fw-bold px-4">
+        <i class="fa-brands fa-whatsapp fa-lg me-2"></i> WhatsApp Us
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

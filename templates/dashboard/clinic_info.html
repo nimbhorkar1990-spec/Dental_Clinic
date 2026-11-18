@@ -1,0 +1,176 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Clinic Information | Dental Clinic Website Builder{% endblock %}
+{% block page_title %}Clinic Information: {{ clinic.name }}{% endblock %}
+{% block page_subtitle %}Manage official practice profile, clinical hours, facilities, maps location, and contact numbers{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        
+        <!-- Practice Profile -->
+        <div class="form-card mb-4">
+          <div class="form-card-header">
+            <h6 class="mb-0 fw-bold"><i class="fa-solid fa-hospital-user text-primary me-2"></i>Practice Identity & Tagline</h6>
+          </div>
+          <div class="form-card-body">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label">Dental Practice Name <span class="text-danger">*</span></label>
+                <input type="text" name="name" class="form-control" value="{{ clinic.name }}" required>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Founded Year</label>
+                <input type="text" name="history_founded_year" class="form-control" value="{{ clinic.history_founded_year }}">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Clinic Tagline / Subtitle</label>
+                <input type="text" name="tagline" class="form-control" value="{{ clinic.tagline }}">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Official Domain Name</label>
+                <input type="text" name="domain_name" class="form-control" value="{{ clinic.domain_name }}">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Practice Email Address</label>
+                <input type="email" name="email" class="form-control" value="{{ clinic.email }}" required>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Short Practice Overview (Home Page)</label>
+                <textarea name="about_short" class="form-control" rows="3">{{ clinic.about_short }}</textarea>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Comprehensive Practice Background (About Us Page)</label>
+                <textarea name="about_full" class="form-control" rows="4">{{ clinic.about_full }}</textarea>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Clinical Mission</label>
+                <textarea name="mission" class="form-control" rows="3">{{ clinic.mission }}</textarea>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Clinical Vision</label>
+                <textarea name="vision" class="form-control" rows="3">{{ clinic.vision }}</textarea>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Clinical Facilities & Equipment (Infrastructure)</label>
+                <textarea name="facilities_text" class="form-control" rows="3" placeholder="3D CBCT, Class-B Autoclave, Laser Gum Surgery...">{{ clinic.facilities_text }}</textarea>
+                <small class="text-muted" style="font-size: 0.75rem;">Displayed in the Facilities & Hygiene section on About Us page</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location & Contact -->
+        <div class="form-card mb-4">
+          <div class="form-card-header">
+            <h6 class="mb-0 fw-bold"><i class="fa-solid fa-map-location-dot text-danger me-2"></i>Location, Maps & Telephony</h6>
+          </div>
+          <div class="form-card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Primary Telephone Number <span class="text-danger">*</span></label>
+                <input type="text" name="phone" class="form-control" value="{{ clinic.phone }}" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Emergency Dental Hotline</label>
+                <input type="text" name="emergency_contact" class="form-control" value="{{ clinic.emergency_contact }}">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Official Clinic Physical Address</label>
+                <textarea name="address" class="form-control" rows="2" required>{{ clinic.address }}</textarea>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Clinic Working Hours (Operating Schedule)</label>
+                <textarea name="working_hours" class="form-control" rows="3">{{ clinic.working_hours }}</textarea>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Google Maps Embed URL</label>
+                <textarea name="google_maps_embed" class="form-control" rows="3">{{ clinic.google_maps_embed }}</textarea>
+                <small class="text-muted" style="font-size: 0.75rem;">Paste the `src="..."` URL from Google Maps Embed iframe</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: WhatsApp, Social Links, Save -->
+      <div class="col-lg-4">
+        
+        <!-- WhatsApp Quick Settings -->
+        <div class="form-card mb-4">
+          <div class="form-card-header">
+            <h6 class="mb-0 fw-bold"><i class="fa-brands fa-whatsapp text-success me-2"></i>WhatsApp Direct Chat</h6>
+          </div>
+          <div class="form-card-body">
+            <label class="form-label">WhatsApp Contact Number</label>
+            <input type="text" name="whatsapp_number" class="form-control mb-2" value="{{ clinic.whatsapp_number }}" required>
+            <small class="text-muted d-block mb-3" style="font-size: 0.75rem;">Digits only with country code (e.g. 917499077170)</small>
+            
+            <a href="{% url 'whatsapp_config_view' %}" class="btn btn-sm btn-outline-success w-100">
+              <i class="fa-solid fa-gear me-1"></i> Advanced WhatsApp Setup
+            </a>
+          </div>
+        </div>
+
+        <!-- Social Media Channels -->
+        <div class="form-card mb-4">
+          <div class="form-card-header">
+            <h6 class="mb-0 fw-bold"><i class="fa-solid fa-share-nodes text-info me-2"></i>Social Channels</h6>
+          </div>
+          <div class="form-card-body">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold"><i class="fa-brands fa-facebook text-primary me-1"></i> Facebook</label>
+              <input type="url" name="facebook_url" class="form-control form-control-sm" value="{{ clinic.facebook_url }}">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold"><i class="fa-brands fa-instagram text-danger me-1"></i> Instagram</label>
+              <input type="url" name="instagram_url" class="form-control form-control-sm" value="{{ clinic.instagram_url }}">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold"><i class="fa-brands fa-twitter text-info me-1"></i> Twitter / X</label>
+              <input type="url" name="twitter_url" class="form-control form-control-sm" value="{{ clinic.twitter_url }}">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold"><i class="fa-brands fa-youtube text-danger me-1"></i> YouTube</label>
+              <input type="url" name="youtube_url" class="form-control form-control-sm" value="{{ clinic.youtube_url }}">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold"><i class="fa-brands fa-linkedin text-primary me-1"></i> LinkedIn</label>
+              <input type="url" name="linkedin_url" class="form-control form-control-sm" value="{{ clinic.linkedin_url }}">
+            </div>
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="d-grid gap-2 sticky-top" style="top: 85px;">
+          <button type="submit" class="btn btn-primary fw-bold py-2 shadow-sm">
+            <i class="fa-solid fa-floppy-disk me-1"></i> Save Clinic Information
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </form>
+
+</div>
+{% endblock %}
+

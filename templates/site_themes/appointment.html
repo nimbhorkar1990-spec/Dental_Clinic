@@ -1,0 +1,226 @@
+{% extends 'site_themes/base.html' %}
+
+{% block content %}
+<!-- Page Hero Banner -->
+<section class="py-5 text-white position-relative" style="background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));">
+  <div class="container py-4 text-center">
+    <span class="badge bg-white text-primary px-3 py-1 rounded-pill small fw-bold mb-2">Priority Online Booking</span>
+    <h1 class="display-5 fw-bold text-white mb-2">{{ current_page.hero_title|default:"Book Your Dental Consultation" }}</h1>
+    <p class="lead text-white-50 mx-auto mb-0" style="max-width: 650px;">
+      {{ current_page.hero_subtitle|default:"Select your preferred time slot and treatment. Instant WhatsApp confirmation available." }}
+    </p>
+  </div>
+</section>
+
+<!-- Appointment Booking Form Section -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    
+    <!-- Confirmation Banner if query string confirmed=1 -->
+    {% if request.GET.confirmed %}
+    <div class="alert alert-success border-success-subtle shadow-sm p-4 rounded-4 mb-5 text-center">
+      <div class="p-3 bg-success text-white rounded-circle d-inline-flex mb-3">
+        <i class="fa-solid fa-check fa-2x"></i>
+      </div>
+      <h4 class="fw-bold text-success mb-2">Appointment Request Submitted Successfully!</h4>
+      <p class="text-muted mb-4 mx-auto" style="max-width: 600px;">
+        Thank you! Our clinical receptionist team has received your consultation booking and will verify your slot shortly. You can also chat with our clinic directly on WhatsApp:
+      </p>
+      {% if request.GET.wa %}
+      <a href="{{ request.GET.wa }}" target="_blank" class="btn btn-success fw-bold px-4 py-2 shadow-sm rounded-pill">
+        <i class="fa-brands fa-whatsapp fa-lg me-2"></i> Confirm on WhatsApp Now
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="row g-5 justify-content-center">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white border">
+          <div class="text-center mb-4">
+            <h3 class="fw-bold text-dark mb-1">Schedule Your Appointment</h3>
+            <span class="text-muted small">Please complete the form below. We will confirm your visit within 30 minutes.</span>
+          </div>
+
+          <form method="POST" action="{% url 'site_submit_appointment' clinic.slug %}" id="bookingForm">
+            {% csrf_token %}
+
+            <div class="row g-3">
+              <!-- Patient Name -->
+              <div class="col-md-6">
+                <label class="form-label fw-bold small">Patient Full Name <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light"><i class="fa-solid fa-user text-muted"></i></span>
+                  <input type="text" name="patient_name" class="form-control" placeholder="e.g. Sarah Jenkins" required>
+                </div>
+              </div>
+
+              <!-- Mobile Number -->
+              <div class="col-md-6">
+                <label class="form-label fw-bold small">Mobile Phone / WhatsApp <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light"><i class="fa-solid fa-phone text-muted"></i></span>
+                  <input type="tel" name="mobile_number" class="form-control" placeholder="e.g. +1 (555) 234-5678" required>
+                </div>
+              </div>
+
+              <!-- Email Address -->
+              <div class="col-md-6">
+                <label class="form-label fw-bold small">Email Address</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light"><i class="fa-solid fa-envelope text-muted"></i></span>
+                  <input type="email" name="email" class="form-control" placeholder="e.g. sarah@example.com">
+                </div>
+              </div>
+
+              <!-- Treatment Selection -->
+              <div class="col-md-6">
+                <label class="form-label fw-bold small">Treatment Required <span class="text-danger">*</span></label>
+                <select name="treatment" class="form-select" required>
+                  <option value="General Checkup">General Consultation & Checkup</option>
+                  {% for t in treatments %}
+                  <option value="{{ t.name }}" {% if request.GET.treatment == t.name %}selected{% endif %}>{{ t.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <!-- Appointment Date -->
+              <div class="col-md-6">
+                <label class="form-label fw-bold small">Preferred Appointment Date <span class="text-danger">*</span></label>
+                <input type="date" name="appointment_date" class="form-control" required id="datePicker">
+              </div>
+
+              <!-- Preferred Time Slot -->
+              <div class="col-md-6">
+                <label class="form-label fw-bold small">Preferred Time Slot <span class="text-danger">*</span></label>
+                <select name="preferred_time" class="form-select" required>
+                  <option value="morning">Morning (9:00 AM – 12:00 PM)</option>
+                  <option value="afternoon">Afternoon (12:00 PM – 4:00 PM)</option>
+                  <option value="evening">Evening (4:00 PM – 7:30 PM)</option>
+                </select>
+              </div>
+
+              <!-- Doctor Preference -->
+              <div class="col-12">
+                <label class="form-label fw-bold small">Preferred Dental Specialist</label>
+                <select name="doctor" class="form-select">
+                  <option value="Any Specialist">Any Available Board-Certified Surgeon</option>
+                  {% for doc in doctors %}
+                  <option value="{{ doc.name }}" {% if request.GET.doctor == doc.name %}selected{% endif %}>{{ doc.name }} ({{ doc.specialization }})</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <!-- Additional Message / Concerns -->
+              <div class="col-12">
+                <label class="form-label fw-bold small">Additional Clinical Notes or Questions</label>
+                <textarea name="message" class="form-control" rows="3" placeholder="Please describe any symptoms, tooth pain, dental anxiety, or insurance details..."></textarea>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-clinic-primary btn-lg w-100 fw-bold shadow">
+                  <i class="fa-solid fa-calendar-check me-2"></i> Confirm & Book Appointment
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div class="mt-4 pt-3 border-top text-center">
+            <span class="small text-muted d-block mb-2">Need an emergency dental appointment immediately?</span>
+            <div class="d-flex justify-content-center gap-3">
+              <a href="tel:{{ clean_phone }}" class="btn btn-sm btn-outline-danger fw-bold">
+                <i class="fa-solid fa-phone me-1"></i> Call Hotline: {{ clinic.phone }}
+              </a>
+              <a href="{{ wa_url }}" target="_blank" class="btn btn-sm btn-outline-success fw-bold">
+                <i class="fa-brands fa-whatsapp me-1"></i> WhatsApp Hotline
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AJAX Booking Confirmation Modal -->
+  <div class="modal fade" id="bookingSuccessModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-center p-4">
+        <div class="p-3 bg-success text-white rounded-circle d-inline-flex mx-auto mb-3" style="width: 70px; height: 70px; align-items: center; justify-content: center;">
+          <i class="fa-solid fa-check fa-2x"></i>
+        </div>
+        <h4 class="fw-bold text-success mb-2">Appointment Request Submitted!</h4>
+        <p class="text-muted small mb-4" id="modalSuccessMsg">
+          Thank you! Our dental care team has received your consultation booking and will verify your slot shortly.
+        </p>
+
+        <div class="d-grid gap-2">
+          <a href="#" id="modalWaBtn" target="_blank" class="btn btn-success fw-bold py-2 shadow-sm rounded-pill">
+            <i class="fa-brands fa-whatsapp fa-lg me-2"></i> Confirm on WhatsApp Now
+          </a>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+            Close Window
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Set default minimum date to today
+  const dPicker = document.getElementById('datePicker');
+  if (dPicker) {
+    const today = new Date().toISOString().split('T')[0];
+    dPicker.min = today;
+    if (!dPicker.value) {
+      dPicker.value = today;
+    }
+  }
+
+  // Smooth AJAX submission with Modal confirmation
+  const bookingForm = document.getElementById('bookingForm');
+  if (bookingForm) {
+    bookingForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(bookingForm);
+      formData.append('ajax', '1');
+
+      const submitBtn = bookingForm.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Processing Booking...';
+
+      fetch(bookingForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+        if (data.success) {
+          bookingForm.reset();
+          document.getElementById('modalSuccessMsg').innerText = data.message;
+          document.getElementById('modalWaBtn').href = data.whatsapp_url;
+          const successModal = new bootstrap.Modal(document.getElementById('bookingSuccessModal'));
+          successModal.show();
+        } else {
+          bookingForm.submit();
+        }
+      })
+      .catch(err => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+        bookingForm.submit();
+      });
+    });
+  }
+</script>
+{% endblock %}
+

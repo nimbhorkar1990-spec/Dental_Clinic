@@ -1,0 +1,145 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Appointment Enquiries | Dental Clinic Website Builder{% endblock %}
+{% block page_title %}Appointment Enquiries: {{ clinic.name }}{% endblock %}
+{% block page_subtitle %}Live patient appointment submissions, consultation requests, and instant WhatsApp response hub{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <!-- Top Filters & Search -->
+  <div class="card border-0 shadow-sm rounded-3 mb-4 p-3 bg-white">
+    <div class="row g-2 align-items-center justify-content-between">
+      <div class="col-md-7">
+        <div class="d-flex align-items-center flex-wrap gap-2">
+          <!-- Status Filter Badges -->
+          <a href="{% url 'enquiries_list' %}" class="btn btn-sm {% if not status_filter %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            All ({{ clinic.enquiries.count }})
+          </a>
+          {% for s_val, s_label in statuses %}
+          <a href="{% url 'enquiries_list' %}?status={{ s_val }}" class="btn btn-sm {% if status_filter == s_val %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            {{ s_label }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col-md-5">
+        <form method="GET" class="d-flex align-items-center gap-2">
+          <input type="text" name="q" class="form-control form-control-sm" placeholder="Search patient name, phone, treatment..." value="{{ search_query }}">
+          <button type="submit" class="btn btn-sm btn-outline-primary">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+          <a href="{% url 'enquiry_export_csv' %}" class="btn btn-sm btn-outline-success fw-semibold text-nowrap" title="Export Enquiries to CSV">
+            <i class="fa-solid fa-file-csv me-1"></i> Export CSV
+          </a>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enquiries Table -->
+  <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+    <div class="table-responsive">
+      <table class="builder-table">
+        <thead>
+          <tr>
+            <th>Patient Details</th>
+            <th>Contact Info</th>
+            <th>Requested Date & Slot</th>
+            <th>Treatment & Specialist</th>
+            <th>Message</th>
+            <th>Status</th>
+            <th>Actions & WhatsApp</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for enq in enquiries %}
+          <tr>
+            <td>
+              <div class="fw-bold text-dark">{{ enq.patient_name }}</div>
+              <span class="small text-muted">ID: #{{ enq.id }} · {{ enq.created_at|date:"M d, Y H:i" }}</span>
+            </td>
+            <td>
+              <div class="fw-semibold text-dark"><i class="fa-solid fa-phone text-muted small me-1"></i> {{ enq.mobile_number }}</div>
+              {% if enq.email %}
+              <div class="small text-muted"><i class="fa-solid fa-envelope text-muted small me-1"></i> {{ enq.email }}</div>
+              {% endif %}
+            </td>
+            <td>
+              <div class="fw-bold text-primary">{{ enq.appointment_date|date:"D, M d, Y" }}</div>
+              <span class="badge bg-light text-dark border small">{{ enq.get_preferred_time_display }}</span>
+            </td>
+            <td>
+              <div class="fw-semibold text-dark">{{ enq.treatment }}</div>
+              <span class="small text-muted">{{ enq.doctor|default:"Any Specialist" }}</span>
+            </td>
+            <td>
+              <span class="small text-muted" title="{{ enq.message }}">{{ enq.message|default:"No special notes"|truncatechars:45 }}</span>
+            </td>
+            <td>
+              <form method="POST" action="{% url 'enquiry_update_status' enq.id %}" class="d-inline">
+                {% csrf_token %}
+                <select name="status" class="form-select form-select-sm fw-semibold" onchange="this.form.submit()" style="font-size: 0.78rem; width: 140px;">
+                  {% for s_val, s_label in statuses %}
+                  <option value="{{ s_val }}" {% if enq.status == s_val %}selected{% endif %}>{{ s_label }}</option>
+                  {% endfor %}
+                </select>
+              </form>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-1">
+                <!-- One-click WhatsApp Chat Reply -->
+                <a href="{{ enq.get_whatsapp_reply_url }}" target="_blank" class="btn btn-sm btn-success py-1 px-2 fw-semibold" title="Reply via WhatsApp Instant Chat">
+                  <i class="fa-brands fa-whatsapp"></i> Chat
+                </a>
+                <a href="tel:{{ enq.mobile_number }}" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Call Patient">
+                  <i class="fa-solid fa-phone"></i>
+                </a>
+                <button type="button" class="btn btn-sm btn-light border py-1 px-2" data-bs-toggle="modal" data-bs-target="#notesModal_{{ enq.id }}" title="Clinical Notes">
+                  <i class="fa-solid fa-note-sticky text-warning"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Notes Modal -->
+          <div class="modal fade" id="notesModal_{{ enq.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <form method="POST" action="{% url 'enquiry_update_status' enq.id %}">
+                  {% csrf_token %}
+                  <div class="modal-header">
+                    <h6 class="modal-title fw-bold">Clinical Notes: {{ enq.patient_name }}</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="mb-3">
+                      <label class="form-label">Internal Follow-Up Notes</label>
+                      <textarea name="admin_notes" class="form-control" rows="4" placeholder="Patient medical history, confirmation call details, requested doctor...">{{ enq.admin_notes }}</textarea>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary btn-sm fw-semibold">Save Notes</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="fa-regular fa-calendar-check fa-3x mb-3 text-secondary opacity-50"></i>
+              <p class="mb-0">No appointment enquiries found matching criteria.</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+

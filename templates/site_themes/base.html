@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block seo_title %}{{ current_page.seo_title|default:clinic.seo_meta_title|default:clinic.name }}{% endblock %}</title>
+  <meta name="description" content="{% block seo_desc %}{{ current_page.seo_description|default:clinic.seo_meta_description|default:clinic.tagline }}{% endblock %}">
+  <meta name="keywords" content="{% block seo_keywords %}{{ current_page.seo_keywords|default:clinic.seo_keywords }}{% endblock %}">
+  
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="{{ current_page.seo_title|default:clinic.seo_meta_title|default:clinic.name }}">
+  <meta property="og:description" content="{{ current_page.seo_description|default:clinic.seo_meta_description|default:clinic.tagline }}">
+  <meta property="og:type" content="website">
+  {% if clinic.seo_og_image %}
+  <meta property="og:image" content="{{ clinic.seo_og_image.url }}">
+  {% endif %}
+
+  <!-- Google Fonts: {{ clinic.font_family }} -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@300;400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  
+  <!-- Theme CSS -->
+  {% if is_static_export %}
+  <link rel="stylesheet" href="css/theme-common.css">
+  <link rel="stylesheet" href="css/custom-theme.css">
+  {% else %}
+  <link rel="stylesheet" href="/static/css/theme-common.css">
+  {% endif %}
+
+  <!-- Dynamic Theme Variables & Injected Custom CSS -->
+  <style>
+    :root {
+      --primary-color: {{ clinic.primary_color|default:"#0ea5e9" }};
+      --secondary-color: {{ clinic.secondary_color|default:"#0369a1" }};
+      --accent-color: {{ clinic.accent_color|default:"#10b981" }};
+      --bg-color: {{ clinic.background_color|default:"#ffffff" }};
+      --text-color: {{ clinic.text_color|default:"#1e293b" }};
+      --font-family: {{ clinic.font_family|default:"Poppins, sans-serif" }};
+      --font-size-base: {{ clinic.font_size_base|default:"16px" }};
+    }
+    
+    {{ clinic.theme.custom_css|safe }}
+    {{ clinic.custom_css|safe }}
+  </style>
+
+  <!-- Schema.org Dentist Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Dentist",
+    "name": "{{ clinic.name }}",
+    "description": "{{ clinic.about_short|escapejs }}",
+    "telephone": "{{ clinic.phone }}",
+    "email": "{{ clinic.email }}",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "{{ clinic.address|escapejs }}"
+    },
+    "openingHours": "{{ clinic.working_hours|escapejs }}",
+    "priceRange": "$$"
+  }
+  </script>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- 1. Top Emergency & Working Hours Bar -->
+  <header class="clinic-topbar">
+    <div class="container d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-3">
+        <span><i class="fa-solid fa-clock me-1 text-info"></i> {{ clinic.working_hours|truncatechars:45 }}</span>
+        <span class="d-none d-md-inline">|</span>
+        <span class="d-none d-md-inline"><i class="fa-solid fa-location-dot me-1 text-danger"></i> {{ clinic.address|truncatechars:40 }}</span>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <a href="tel:{{ clean_phone }}"><i class="fa-solid fa-phone me-1 text-warning"></i> Call: <strong>{{ clinic.phone }}</strong></a>
+        {% if clinic.emergency_contact %}
+        <span class="d-none d-lg-inline">|</span>
+        <a href="tel:{{ clinic.emergency_contact }}" class="d-none d-lg-inline text-warning"><i class="fa-solid fa-kit-medical me-1"></i> Emergency: {{ clinic.emergency_contact }}</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. Main Navigation Bar -->
+  <nav class="navbar navbar-expand-lg clinic-navbar sticky-top">
+    <div class="container">
+      <!-- Clinic Brand Logo & Title -->
+      <a class="clinic-brand" href="{% url 'site_home' clinic.slug %}">
+        {% if clinic.logo %}
+        <img src="{{ clinic.logo.url }}" alt="{{ clinic.name }} Logo" class="clinic-logo-img">
+        {% else %}
+        <div class="clinic-brand-placeholder">
+          <i class="fa-solid fa-tooth"></i>
+        </div>
+        {% endif %}
+        <div>
+          <span class="clinic-brand-name">{{ clinic.name }}</span>
+          <span class="clinic-brand-tagline d-block">{{ clinic.tagline }}</span>
+        </div>
+      </a>
+
+      <!-- Mobile Hamburger Toggle -->
+      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#clinicNavCollapse">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Nav Links -->
+      <div class="collapse navbar-collapse" id="clinicNavCollapse">
+        <ul class="navbar-nav ms-auto clinic-nav align-items-lg-center gap-1">
+          {% for p in pages %}
+            {% if p.show_in_nav %}
+            <li class="nav-item">
+              <a class="nav-link {% if page_type == p.page_type %}active{% endif %}" 
+                 href="{% if is_static_export %}{% if p.page_type == 'home' %}index.html{% elif p.page_type == 'about' %}about.html{% elif p.page_type == 'treatments' %}treatments.html{% elif p.page_type == 'doctors' %}doctors.html{% elif p.page_type == 'gallery' %}gallery.html{% elif p.page_type == 'contact' %}contact.html{% elif p.page_type == 'appointment' %}book-appointment.html{% endif %}{% else %}{% if p.page_type == 'home' %}{% url 'site_home' clinic.slug %}{% elif p.page_type == 'about' %}{% url 'site_about' clinic.slug %}{% elif p.page_type == 'treatments' %}{% url 'site_treatments' clinic.slug %}{% elif p.page_type == 'doctors' %}{% url 'site_doctors' clinic.slug %}{% elif p.page_type == 'gallery' %}{% url 'site_gallery' clinic.slug %}{% elif p.page_type == 'contact' %}{% url 'site_contact' clinic.slug %}{% elif p.page_type == 'appointment' %}{% url 'site_appointment' clinic.slug %}{% endif %}{% endif %}">
+                {{ p.title }}
+              </a>
+            </li>
+            {% endif %}
+          {% endfor %}
+
+          <!-- Book Appointment Button in Header -->
+          <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+            <a href="{% if is_static_export %}book-appointment.html{% else %}{% url 'site_appointment' clinic.slug %}{% endif %}" class="btn btn-clinic-primary btn-sm">
+              <i class="fa-solid fa-calendar-plus me-1"></i> Book Appointment
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  {% if messages %}
+  <div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+      <i class="fa-solid fa-circle-check me-2"></i> {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Main Body Content Block -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- 3. Floating WhatsApp Widget with Interactive Status Badge -->
+  {% if clinic.enable_whatsapp_float %}
+  <div class="wa-widget-wrapper {{ clinic.whatsapp_float_position }}">
+    <div class="wa-chat-tooltip d-none d-md-flex">
+      <span class="wa-online-dot"></span>
+      <span>Chat with {{ clinic.name|truncatechars:20 }}</span>
+    </div>
+    <a href="{{ wa_url }}" target="_blank" class="wa-floating-btn" title="Chat on WhatsApp" rel="noopener noreferrer">
+      <i class="fa-brands fa-whatsapp"></i>
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- 4. Sticky Mobile Call & Book Bar -->
+  {% if clinic.enable_sticky_appointment_bar %}
+  <div class="sticky-mobile-bar d-md-none">
+    <a href="tel:{{ clean_phone }}" class="btn btn-outline-dark flex-fill fw-bold py-2 small">
+      <i class="fa-solid fa-phone me-1"></i> Call Now
+    </a>
+    <a href="{% url 'site_appointment' clinic.slug %}" class="btn btn-clinic-primary flex-fill fw-bold py-2 small">
+      <i class="fa-solid fa-calendar-plus me-1"></i> Book Visit
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- 5. Multi-Column Footer -->
+  <footer class="clinic-footer">
+    <div class="container">
+      <div class="row g-4">
+        
+        <!-- Col 1: About Practice -->
+        <div class="col-lg-4 col-md-6">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="p-2 bg-primary text-white rounded-circle"><i class="fa-solid fa-tooth"></i></span>
+            <h5 class="mb-0 text-white">{{ clinic.name }}</h5>
+          </div>
+          <p class="small text-muted mb-3">{{ clinic.about_short }}</p>
+          
+          <div class="d-flex align-items-center gap-2">
+            {% if clinic.facebook_url %}<a href="{{ clinic.facebook_url }}" target="_blank" class="btn btn-sm btn-outline-light rounded-circle" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-facebook-f"></i></a>{% endif %}
+            {% if clinic.instagram_url %}<a href="{{ clinic.instagram_url }}" target="_blank" class="btn btn-sm btn-outline-light rounded-circle" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-instagram"></i></a>{% endif %}
+            {% if clinic.twitter_url %}<a href="{{ clinic.twitter_url }}" target="_blank" class="btn btn-sm btn-outline-light rounded-circle" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-x-twitter"></i></a>{% endif %}
+            {% if clinic.youtube_url %}<a href="{{ clinic.youtube_url }}" target="_blank" class="btn btn-sm btn-outline-light rounded-circle" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-youtube"></i></a>{% endif %}
+            {% if clinic.linkedin_url %}<a href="{{ clinic.linkedin_url }}" target="_blank" class="btn btn-sm btn-outline-light rounded-circle" style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;"><i class="fa-brands fa-linkedin-in"></i></a>{% endif %}
+          </div>
+        </div>
+
+        <!-- Col 2: Core Treatments -->
+        <div class="col-lg-2 col-md-6">
+          <h5>Treatments</h5>
+          <ul class="list-unstyled small mb-0">
+            {% for t in treatments|slice:":5" %}
+            <li class="mb-2">
+              <a href="{% url 'site_treatment_detail' clinic.slug t.slug %}"><i class="fa-solid fa-angle-right me-1 small text-primary"></i> {{ t.name }}</a>
+            </li>
+            {% endfor %}
+            <li>
+              <a href="{% url 'site_treatments' clinic.slug %}" class="fw-bold text-primary">View All Services →</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Quick Navigation -->
+        <div class="col-lg-2 col-md-6">
+          <h5>Quick Links</h5>
+          <ul class="list-unstyled small mb-0">
+            {% for p in pages %}
+            <li class="mb-2">
+              <a href="{% if p.page_type == 'home' %}{% url 'site_home' clinic.slug %}{% elif p.page_type == 'about' %}{% url 'site_about' clinic.slug %}{% elif p.page_type == 'treatments' %}{% url 'site_treatments' clinic.slug %}{% elif p.page_type == 'doctors' %}{% url 'site_doctors' clinic.slug %}{% elif p.page_type == 'gallery' %}{% url 'site_gallery' clinic.slug %}{% elif p.page_type == 'contact' %}{% url 'site_contact' clinic.slug %}{% elif p.page_type == 'appointment' %}{% url 'site_appointment' clinic.slug %}{% endif %}">
+                <i class="fa-solid fa-angle-right me-1 small text-primary"></i> {{ p.title }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Col 4: Contact & Hours -->
+        <div class="col-lg-4 col-md-6">
+          <h5>Practice Contacts</h5>
+          <ul class="list-unstyled small mb-3">
+            <li class="mb-2 d-flex align-items-start gap-2">
+              <i class="fa-solid fa-location-dot text-danger mt-1"></i>
+              <span>{{ clinic.address }}</span>
+            </li>
+            <li class="mb-2 d-flex align-items-center gap-2">
+              <i class="fa-solid fa-phone text-warning"></i>
+              <a href="tel:{{ clean_phone }}" class="fw-bold text-white">{{ clinic.phone }}</a>
+            </li>
+            <li class="mb-2 d-flex align-items-center gap-2">
+              <i class="fa-brands fa-whatsapp text-success"></i>
+              <a href="{{ wa_url }}" target="_blank" class="fw-bold text-success">+{{ clinic.whatsapp_number }} (Chat Online)</a>
+            </li>
+            <li class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-envelope text-info"></i>
+              <a href="mailto:{{ clinic.email }}">{{ clinic.email }}</a>
+            </li>
+          </ul>
+
+          <div class="p-2 bg-dark rounded border border-secondary small">
+            <span class="text-white fw-semibold d-block mb-1"><i class="fa-solid fa-clock text-info me-1"></i> Working Schedule:</span>
+            <span class="text-white-50" style="font-size: 0.75rem; white-space: pre-line;">{{ clinic.working_hours }}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Bottom -->
+      <div class="footer-bottom d-flex align-items-center justify-content-between flex-wrap gap-2 text-muted">
+        <span>© 2026 {{ clinic.name }}. All clinical rights reserved.</span>
+        <div>
+          <a href="{% url 'site_sitemap' clinic.slug %}" target="_blank" class="me-3 text-muted">XML Sitemap</a>
+          <a href="{% url 'site_robots' clinic.slug %}" target="_blank" class="text-muted">Robots.txt</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
+

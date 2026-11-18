@@ -20,8 +20,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /app/
 
-# Run collectstatic to populate staticfiles for WhiteNoise
-RUN python manage.py collectstatic --noinput
+# Run database migrations and collect static files
+RUN python manage.py migrate --noinput && python manage.py collectstatic --noinput
 
 EXPOSE 8080
 
